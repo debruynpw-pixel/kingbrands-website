@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>King Brands — Staff Application</title>
+<link rel="icon" type="image/jpeg" href="assets/kb-logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#050b1c; --navy-900:#0a1330; --navy-850:#0d1839; --navy-800:#122048;
+  --gold:#d4af37; --gold-bright:#f0c75e; --gold-deep:#a17c1a;
+  --white:#fff; --cream:#f5f1e6; --cream-dim:#c2bcae;
+  --ink:#101828;
+  --line-d:rgba(212,175,55,.18);
+  --radius:18px; --ease:cubic-bezier(.22,1,.36,1);
+  --wa:#25d366;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(ellipse 60% 40% at 50% -8%, #11204a 0%, transparent 60%),
+    linear-gradient(180deg,#0a1330 0%,#050b1c 60%);
+  background-attachment:fixed;
+  color:var(--cream); font-family:'Manrope',sans-serif; line-height:1.6; min-height:100dvh;
+  overflow-x:hidden;
+}
+::selection{background:var(--gold);color:var(--navy-950)}
+h1,h2,h3{font-family:'Cinzel',serif;font-weight:600;line-height:1.16}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select{font-family:inherit}
+.container{width:min(1120px,94%);margin:0 auto}
+.hidden{display:none!important}
+
+/* ── HEADER ── */
+header.bar{position:sticky;top:0;z-index:50;background:rgba(5,11,28,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-d)}
+.bar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;width:min(1120px,94%);margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{height:40px;width:40px;object-fit:cover;border-radius:9px;box-shadow:0 0 0 1px var(--line-d)}
+.brand span{font-family:'Cinzel',serif;font-size:.82rem;letter-spacing:.12em;font-weight:700}
+.brand span b{color:var(--gold)}
+.who{display:flex;align-items:center;gap:10px}
+.who .tag{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);font-weight:700}
+.who .tag b{color:var(--gold-bright)}
+#logoutBtn{background:rgba(212,175,55,.1);border:1px solid var(--line-d);color:var(--gold-bright);padding:8px 16px;border-radius:100px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+#logoutBtn:hover{background:rgba(212,175,55,.2)}
+
+/* ── LOGIN GATE ── */
+#gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:radial-gradient(ellipse 60% 45% at 50% 0%, #11204a 0%, transparent 60%),linear-gradient(180deg,#0a1330,#050b1c)}
+.gate-card{width:min(400px,100%);background:linear-gradient(160deg,rgba(18,32,72,.7),rgba(10,19,48,.7));
+  border:1px solid var(--line-d);border-radius:var(--radius);padding:38px 32px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.gate-card img{height:60px;width:60px;object-fit:cover;border-radius:14px;margin:0 auto 18px;box-shadow:0 0 0 1px var(--line-d)}
+.gate-card h1{font-size:1.35rem;color:var(--white);margin-bottom:6px}
+.gate-card p{font-size:.82rem;color:var(--cream-dim);margin-bottom:24px}
+.gate-card input{width:100%;padding:14px 16px;border-radius:12px;background:rgba(5,11,28,.6);border:1px solid var(--line-d);
+  color:var(--cream);font-size:1rem;text-align:center;letter-spacing:.06em;margin-bottom:14px}
+.gate-card input:focus{outline:none;border-color:var(--gold)}
+.gate-card button{width:100%;padding:14px;border-radius:100px;font-weight:800;letter-spacing:.06em;
+  background:linear-gradient(135deg,var(--gold-deep),var(--gold) 50%,var(--gold-bright));color:var(--navy-950);font-size:.95rem}
+.gate-err{color:#ff8080;font-size:.8rem;margin-top:12px;min-height:1em}
+
+/* ── LAYOUT ── */
+main{padding:34px 0 90px}
+.page-head{margin-bottom:26px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px}
+.eyebrow::before{content:'';width:26px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.page-head h1{font-size:clamp(1.7rem,4vw,2.5rem);color:var(--white)}
+.page-head p{color:var(--cream-dim);font-size:.9rem;margin-top:6px;max-width:640px}
+.back-link{display:inline-flex;align-items:center;gap:8px;background:none;color:var(--cream-dim);font-size:.8rem;font-weight:700;
+  letter-spacing:.04em;margin-bottom:18px;padding:6px 0}
+.back-link:hover{color:var(--gold-bright)}
+
+.view{display:none;animation:fade .4s var(--ease)}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── HOME TILES ── */
+.tile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;max-width:820px}
+.tile{position:relative;overflow:hidden;text-align:left;display:flex;flex-direction:column;gap:6px;padding:28px 24px;border-radius:var(--radius);
+  background:linear-gradient(160deg,rgba(18,32,72,.6),rgba(10,19,48,.6));border:1px solid var(--line-d);color:var(--cream);
+  transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
+.tile:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.tile:disabled{opacity:.5;cursor:not-allowed;transform:none;border-color:var(--line-d);box-shadow:none}
+.tile::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 100% 0%,rgba(212,175,55,.14),transparent 55%);pointer-events:none}
+.tile .emblem{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:rgba(212,175,55,.12);border:1px solid var(--line-d);color:var(--gold);margin-bottom:10px}
+.tile .emblem svg{width:28px;height:28px}
+.tile .t-name{font-family:'Cinzel',serif;font-size:1.35rem;color:var(--white);font-weight:700}
+.tile .t-desc{font-size:.82rem;color:var(--cream-dim)}
+.tile .t-go{margin-top:12px;font-size:.78rem;font-weight:800;letter-spacing:.05em;color:var(--gold-bright)}
+.tile .soon{position:absolute;top:14px;right:14px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;font-weight:800;
+  color:var(--cream-dim);background:rgba(255,255,255,.06);border:1px solid var(--line-d);padding:4px 8px;border-radius:100px}
+
+/* ── CARDS / FORM ── */
+.card{background:linear-gradient(160deg,rgba(18,32,72,.55),rgba(10,19,48,.55));border:1px solid var(--line-d);
+  border-radius:var(--radius);padding:22px 24px;margin-bottom:18px}
+.card h2{font-size:1.02rem;color:var(--gold-bright);margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.card h2 .num{font-family:'Manrope';font-size:.72rem;background:rgba(212,175,55,.15);color:var(--gold);
+  width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;flex:none}
+.card .sub{font-size:.78rem;color:var(--cream-dim);margin-bottom:16px}
+
+.field-row{display:grid;grid-template-columns:1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--cream)}
+.field .hint{font-size:.68rem;color:var(--cream-dim);font-weight:500}
+.inputs{display:flex;gap:10px;flex-wrap:wrap}
+.inputs .u{flex:1;min-width:120px;display:flex;flex-direction:column;gap:4px}
+.inputs .u small{font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);font-weight:700}
+input.num,select.sel,input.txt{width:100%;padding:12px 14px;border-radius:12px;background:rgba(5,11,28,.55);
+  border:1px solid var(--line-d);color:var(--cream);font-size:.95rem}
+input.num:focus,select.sel:focus,input.txt:focus{outline:none;border-color:var(--gold)}
+select.sel{cursor:pointer}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cap-line{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:10px;align-items:center;padding:10px 0;border-top:1px solid rgba(212,175,55,.1)}
+.cap-line:first-of-type{border-top:none}
+.cap-name{display:flex;align-items:center;gap:9px;font-size:.9rem;font-weight:700}
+.cap-dot{width:15px;height:15px;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.25);flex:none}
+
+/* warehouse needs */
+.need-row{display:grid;grid-template-columns:1.6fr 1fr auto;gap:10px;margin-bottom:10px}
+.need-row .rm{background:rgba(255,120,120,.12);border:1px solid rgba(255,120,120,.3);color:#ff9a9a;border-radius:12px;
+  width:44px;font-size:1.1rem;font-weight:700}
+.need-row .rm:hover{background:rgba(255,120,120,.22)}
+.add-need{background:rgba(212,175,55,.1);border:1px solid var(--line-d);color:var(--gold-bright);padding:10px 18px;
+  border-radius:100px;font-size:.8rem;font-weight:700;letter-spacing:.03em}
+.add-need:hover{background:rgba(212,175,55,.2)}
+
+.btn{padding:14px 26px;border-radius:100px;font-weight:800;letter-spacing:.04em;font-size:.95rem;
+  background:linear-gradient(135deg,var(--gold-deep),var(--gold) 50%,var(--gold-bright));color:var(--navy-950)}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:rgba(212,175,55,.1);border:1px solid var(--line-d);color:var(--gold-bright)}
+.btn.wa{background:var(--wa);color:#fff;display:inline-flex;align-items:center;gap:10px}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.btn.full{width:100%;justify-content:center;text-align:center}
+
+/* success */
+.success-card{text-align:center;padding:38px 26px}
+.success-card .check{width:70px;height:70px;border-radius:50%;background:rgba(37,211,102,.15);border:1px solid rgba(37,211,102,.4);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:var(--wa)}
+.success-card h2{color:var(--white);font-size:1.4rem;margin-bottom:8px}
+.success-card p{color:var(--cream-dim);font-size:.88rem;margin-bottom:6px}
+.success-card .em-note{color:var(--gold-bright);font-size:.8rem;margin:14px 0 22px}
+
+/* owner sheet list */
+.sheet-card{background:linear-gradient(160deg,rgba(18,32,72,.55),rgba(10,19,48,.55));border:1px solid var(--line-d);
+  border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;cursor:pointer;flex-wrap:wrap}
+.sheet-head:hover{background:rgba(212,175,55,.05)}
+.sheet-head .who-line{display:flex;flex-direction:column;gap:2px}
+.sheet-head .by{font-size:.95rem;font-weight:800;color:var(--white)}
+.sheet-head .by b{color:var(--gold-bright);text-transform:capitalize}
+.sheet-head .when{font-size:.74rem;color:var(--cream-dim)}
+.sheet-head .chev{color:var(--gold);transition:transform .25s}
+.sheet-card.open .chev{transform:rotate(180deg)}
+.sheet-body{display:none;padding:4px 20px 20px;border-top:1px solid var(--line-d)}
+.sheet-card.open .sheet-body{display:block}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0}
+.stat{background:rgba(5,11,28,.4);border:1px solid rgba(212,175,55,.12);border-radius:12px;padding:11px 13px}
+.stat .k{font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--cream-dim);font-weight:700}
+.stat .v{font-size:1rem;color:var(--gold-bright);font-weight:800;margin-top:2px}
+.sec-label{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;margin:16px 0 4px}
+.need-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.need-list li{display:flex;justify-content:space-between;gap:12px;font-size:.86rem;padding:8px 12px;background:rgba(5,11,28,.4);
+  border:1px solid rgba(212,175,55,.1);border-radius:10px}
+.need-list li b{color:var(--gold-bright)}
+.empty-note{color:var(--cream-dim);font-size:.85rem;padding:20px;text-align:center;border:1px dashed var(--line-d);border-radius:var(--radius)}
+
+/* timesheet */
+.clock-now{font-family:'Cinzel',serif;font-size:2.8rem;font-weight:700;color:var(--gold-bright);letter-spacing:.04em}
+.clock-state{font-size:.85rem;color:var(--cream-dim);margin-top:4px}
+.clock-state b{color:var(--gold-bright)}
+.btn.clockin{background:var(--wa);color:#fff}
+.btn.clockout{background:linear-gradient(135deg,#c0392b,#e05a48);color:#fff}
+.day-row{display:grid;grid-template-columns:1.4fr 1.2fr auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid rgba(212,175,55,.1);font-size:.86rem}
+.day-row:first-child{border-top:none}
+.day-row .d-day{font-weight:800;color:var(--white)}
+.day-row .d-day small{display:block;font-weight:500;color:var(--cream-dim);font-size:.68rem}
+.day-row .d-time{color:var(--cream-dim);font-size:.8rem}
+.day-row .d-hrs{color:var(--gold-bright);font-weight:800;text-align:right}
+.day-row.today{background:rgba(212,175,55,.06);border-radius:10px;padding-left:8px;padding-right:8px}
+.day-row.off .d-hrs{color:var(--cream-dim);opacity:.5}
+.day-row .badge{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--wa)}
+.pay-summary{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--line-d)}
+.pay-summary>div{flex:1;min-width:130px;background:rgba(5,11,28,.4);border:1px solid rgba(212,175,55,.14);border-radius:12px;padding:12px 14px}
+.pay-summary .k{display:block;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--cream-dim);font-weight:700}
+.pay-summary .v{display:block;font-size:1.5rem;font-weight:800;color:var(--white);margin-top:2px;font-family:'Cinzel',serif}
+.pay-summary .v.pay{color:var(--gold-bright)}
+/* owner employee cards */
+.emp-card{background:linear-gradient(160deg,rgba(18,32,72,.55),rgba(10,19,48,.55));border:1px solid var(--line-d);
+  border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+.emp-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;cursor:pointer;flex-wrap:wrap}
+.emp-head:hover{background:rgba(212,175,55,.05)}
+.emp-head .nm{font-size:1.05rem;font-weight:800;color:var(--white);text-transform:capitalize;font-family:'Cinzel',serif}
+.emp-head .rt{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.emp-head .rt .mini{text-align:right}
+.emp-head .rt .mini small{display:block;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--cream-dim);font-weight:700}
+.emp-head .rt .mini b{font-size:1.05rem;color:var(--gold-bright)}
+.emp-head .chev{color:var(--gold);transition:transform .25s}
+.emp-card.open .chev{transform:rotate(180deg)}
+.emp-body{display:none;padding:2px 20px 18px;border-top:1px solid var(--line-d)}
+.emp-card.open .emp-body{display:block}
+.week-title{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;margin:20px 0 6px}
+.paid-list{list-style:none;margin-top:8px}
+.paid-list li{display:flex;justify-content:space-between;gap:12px;font-size:.86rem;padding:10px 12px;background:rgba(5,11,28,.4);
+  border:1px solid rgba(212,175,55,.1);border-radius:10px;margin-bottom:6px}
+.paid-list li .wk{color:var(--cream-dim)}
+.paid-list li .amt{color:var(--gold-bright);font-weight:800}
+.paid-list li .hrs{color:var(--cream);font-weight:600}
+
+@media(max-width:560px){
+  main{padding:24px 0 80px}
+  .container{width:92%}
+  /* header */
+  .bar-inner{gap:8px;padding:10px 0;width:92%}
+  .brand img{height:34px;width:34px}
+  .brand span{font-size:.64rem;letter-spacing:.05em}
+  .who .tag{display:none}
+  #logoutBtn{padding:7px 12px;font-size:.64rem}
+  /* headings */
+  .page-head h1{font-size:1.5rem}
+  .card{padding:18px 16px}
+  /* form grids */
+  .grid2{grid-template-columns:1fr}
+  .inputs .u{min-width:calc(50% - 5px)}
+  .cap-line{grid-template-columns:1fr auto;gap:8px 10px;align-items:center}
+  .cap-line .cap-name{grid-column:1/-1}
+  .need-row{grid-template-columns:1fr auto}
+  .need-row .qty{grid-column:1/2}
+  /* timesheet day rows */
+  .day-row{grid-template-columns:1fr auto;row-gap:2px;column-gap:10px;padding:10px 0}
+  .day-row .d-day{grid-row:1;grid-column:1}
+  .day-row .d-hrs{grid-row:1;grid-column:2}
+  .day-row .d-time{grid-row:2;grid-column:1/-1;font-size:.76rem}
+  .clock-now{font-size:2.3rem}
+  .pay-summary>div{min-width:calc(50% - 7px)}
+  .pay-summary .v{font-size:1.3rem}
+  /* owner employee cards */
+  .emp-head{padding:14px 16px;gap:8px}
+  .emp-head .nm{font-size:.95rem;width:100%}
+  .emp-head .rt{gap:14px;width:100%;justify-content:space-between}
+  .emp-body{padding:2px 16px 16px}
+  .paid-list li{flex-wrap:wrap;gap:4px 12px}
+  .sheet-head{padding:14px 16px}
+  .sheet-body{padding:4px 16px 18px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN GATE ══ -->
+<div id="gate">
+  <div class="gate-card">
+    <img src="assets/kb-logo.jpeg" alt="King Brands">
+    <h1>King Brands</h1>
+    <p>Staff Application — sign in</p>
+    <input id="uName" type="text" placeholder="Username" autocomplete="username" autocapitalize="off">
+    <input id="uPass" type="password" placeholder="Password" autocomplete="current-password">
+    <button onclick="doLogin()">Enter</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app" class="hidden">
+<header class="bar">
+  <div class="bar-inner">
+    <div class="brand">
+      <img src="assets/kb-logo.jpeg" alt="">
+      <span>KING <b>BRANDS</b> · STAFF</span>
+    </div>
+    <div class="who">
+      <span class="tag" id="whoTag"></span>
+      <button id="logoutBtn" onclick="logout()">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ── OWNER HOME ── -->
+  <section id="ownerHome" class="view">
+    <div class="page-head">
+      <div class="eyebrow">Owner Dashboard</div>
+      <h1>Welcome, Grootbaas</h1>
+      <p>Full access — orders, stock sheets and timesheets for the whole team.</p>
+    </div>
+    <div class="tile-grid">
+      <button class="tile" onclick="openOrderTool()">
+        <div class="emblem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h12" stroke-linecap="round"/></svg></div>
+        <div class="t-name">Order Tool</div>
+        <div class="t-desc">Boxes → supplier shopping lists + WhatsApp orders.</div>
+        <div class="t-go">Open →</div>
+      </button>
+      <button class="tile" onclick="show('ownerStock')">
+        <div class="emblem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16" stroke-linecap="round"/></svg></div>
+        <div class="t-name">Stock Sheets</div>
+        <div class="t-desc">Daily stock takes submitted by staff — who &amp; when.</div>
+        <div class="t-go">View →</div>
+      </button>
+      <button class="tile" onclick="show('ownerTime')">
+        <div class="emblem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg></div>
+        <div class="t-name">Timesheets</div>
+        <div class="t-desc">Hours &amp; weekly pay owed — all staff, this week + history.</div>
+        <div class="t-go">View →</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ── STAFF HOME ── -->
+  <section id="staffHome" class="view">
+    <div class="page-head">
+      <div class="eyebrow">Staff</div>
+      <h1 id="staffHi">Welcome</h1>
+      <p>Complete today's tasks below.</p>
+    </div>
+    <div class="tile-grid">
+      <button class="tile" onclick="openStockForm()">
+        <div class="emblem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5" stroke-linecap="round"/></svg></div>
+        <div class="t-name">Stock Sheet</div>
+        <div class="t-desc">Fill in today's warehouse stock take &amp; submit.</div>
+        <div class="t-go">Start today's sheet →</div>
+      </button>
+      <button class="tile" onclick="openTimesheet()">
+        <div class="emblem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg></div>
+        <div class="t-name">Timesheet</div>
+        <div class="t-desc">Clock in and out for the day.</div>
+        <div class="t-go">Clock in →</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ── STOCK FORM ── -->
+  <section id="stockForm" class="view">
+    <button class="back-link" onclick="show(homeView())">← Back</button>
+    <div class="page-head">
+      <div class="eyebrow" id="stockDate">Today</div>
+      <h1>Daily Stock Sheet</h1>
+      <p>Fill in what is currently in the warehouse. Leave anything you didn't count at 0.</p>
+    </div>
+
+    <!-- Bottles -->
+    <div class="card">
+      <h2><span class="num">1</span> Bottles</h2>
+      <div class="sub">Enter full bailers and any loose bottles left over.</div>
+      <div class="field-row">
+        <div class="field">
+          <label>500g bottles</label>
+          <div class="inputs">
+            <div class="u"><small>Bailers</small><input class="num" id="b500_bailers" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+            <div class="u"><small>Loose bottles</small><input class="num" id="b500_loose" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>375g bottles</label>
+          <div class="inputs">
+            <div class="u"><small>Bailers</small><input class="num" id="b375_bailers" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+            <div class="u"><small>Loose bottles</small><input class="num" id="b375_loose" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boxes -->
+    <div class="card">
+      <h2><span class="num">2</span> Boxes</h2>
+      <div class="sub">Enter full bailers and any loose boxes left over.</div>
+      <div class="field-row">
+        <div class="field">
+          <label>500g boxes</label>
+          <div class="inputs">
+            <div class="u"><small>Bailers</small><input class="num" id="box500_bailers" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+            <div class="u"><small>Loose boxes</small><input class="num" id="box500_loose" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>375g boxes</label>
+          <div class="inputs">
+            <div class="u"><small>Bailers</small><input class="num" id="box375_bailers" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+            <div class="u"><small>Loose boxes</small><input class="num" id="box375_loose" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Caps -->
+    <div class="card">
+      <h2><span class="num">3</span> Caps</h2>
+      <div class="sub">Full bags plus the leftover part-bag for each colour.</div>
+      <div id="capRows"></div>
+    </div>
+
+    <!-- Syrup + barcodes -->
+    <div class="card">
+      <h2><span class="num">4</span> Syrup &amp; Barcode Back Labels</h2>
+      <div class="sub">Syrup fill and the pure-honey barcode back label roll count.</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Syrup quantity</label>
+          <div class="inputs">
+            <div class="u"><small>Amount</small><input class="num" id="syrup_amt" type="number" min="0" step="0.1" inputmode="decimal" placeholder="0"></div>
+            <div class="u"><small>Unit</small>
+              <select class="sel" id="syrup_unit"><option value="Litres">Litres</option><option value="Flowbins">Flowbins</option></select>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Barcode back labels <span class="hint">(pure honey only)</span></label>
+          <div class="inputs">
+            <div class="u"><small>Rolls left</small><input class="num" id="barcode_rolls" type="number" min="0" inputmode="numeric" placeholder="0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Labels short -->
+    <div class="card">
+      <h2><span class="num">5</span> Labels Running Short</h2>
+      <div class="sub">Which labels are running low — e.g. Original front, Ginger back, Honey 500g. Add a row per label.</div>
+      <div id="labelRows"></div>
+      <button class="add-need" onclick="addLabel()">+ Add label</button>
+    </div>
+
+    <!-- Warehouse needs -->
+    <div class="card">
+      <h2><span class="num">6</span> Warehouse Needs</h2>
+      <div class="sub">Anything else running low — toiletries, coffee, sugar, tea, etc. Add a row per item.</div>
+      <div id="needRows"></div>
+      <button class="add-need" onclick="addNeed()">+ Add item</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn full" onclick="submitStock()">Submit stock sheet</button>
+    </div>
+  </section>
+
+  <!-- ── SUBMIT SUCCESS ── -->
+  <section id="stockDone" class="view">
+    <div class="card success-card">
+      <div class="check"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <h2>Stock sheet submitted</h2>
+      <p>Saved in the system and recorded with the date &amp; time.</p>
+      <p class="em-note" id="emailNote">Emailing to pw@kingbrandsgroup.co.za…</p>
+      <a class="btn wa full" id="waSendBtn" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.8-2-.9-.3-.1-.5-.2-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.2.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-2.9.8.8-2.8-.2-.3A8.2 8.2 0 1120.2 12 8.2 8.2 0 0112 20.2z"/></svg>
+        Send to Andru on WhatsApp
+      </a>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn ghost" onclick="show(homeView())">Done</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OWNER: STOCK SHEETS ── -->
+  <section id="ownerStock" class="view">
+    <button class="back-link" onclick="show('ownerHome')">← Back to dashboard</button>
+    <div class="page-head">
+      <div class="eyebrow">Records · last 7 sheets</div>
+      <h1>Stock Sheets</h1>
+      <p>Every stock take submitted by staff — newest first. Tap a card to open it.</p>
+    </div>
+    <div id="sheetList"></div>
+  </section>
+
+  <!-- ── STAFF: TIMESHEET ── -->
+  <section id="staffTime" class="view">
+    <button class="back-link" onclick="show('staffHome')">← Back</button>
+    <div class="page-head">
+      <div class="eyebrow" id="timeToday">Today</div>
+      <h1>My Timesheet</h1>
+      <p>Clock in when you arrive, clock out when you leave. One in and one out per day.</p>
+    </div>
+
+    <div class="card" style="text-align:center">
+      <div class="clock-now" id="clockNow">--:--</div>
+      <div class="clock-state" id="clockState">Not clocked in yet today</div>
+      <div class="btn-row" style="justify-content:center;margin-top:14px" id="clockBtns"></div>
+    </div>
+
+    <div class="card">
+      <h2>This week so far</h2>
+      <div class="sub" id="weekRange">Mon – Sun</div>
+      <div id="myWeek"></div>
+      <div class="pay-summary">
+        <div><span class="k">Hours this week</span><span class="v" id="myHours">0</span></div>
+        <div><span class="k">Pay so far</span><span class="v pay" id="myPay">R0</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OWNER: TIMESHEETS ── -->
+  <section id="ownerTime" class="view">
+    <button class="back-link" onclick="show('ownerHome')">← Back to dashboard</button>
+    <div class="page-head">
+      <div class="eyebrow" id="ownerTimeWeek">This week</div>
+      <h1>Timesheets &amp; Pay</h1>
+      <p>Hours worked and pay owed per employee. Everything resets every Monday — past weeks kept below.</p>
+    </div>
+    <div id="ownerWeekNow"></div>
+    <div id="ownerWeekHist"></div>
+  </section>
+
+</main>
+</div>
+
+<script>
+/* ═══════════ CONFIG ═══════════ */
+const OWNER_USER = 'grootbaas';
+const OWNER_PASS = 'king2024';
+const STAFF_PASS = 'ginger2026';
+
+// Andru's WhatsApp (065 894 2768 → intl, no +/spaces)
+const ANDRU_WA   = '27658942768';
+const OWNER_EMAIL = 'pw@kingbrandsgroup.co.za';
+
+const CAPS = [
+  {key:'white',  name:'White caps',  color:'#f5f1e6', border:'#d8d3c4'},
+  {key:'green',  name:'Green caps',  color:'#3faa5a', border:'#3faa5a'},
+  {key:'orange', name:'Orange caps', color:'#e8873a', border:'#e8873a'},
+  {key:'pink',   name:'Pink caps',   color:'#e86aa0', border:'#e86aa0'},
+];
+const FRACS = [
+  {v:0,   label:'—'},
+  {v:0.25,label:'¼ bag'},
+  {v:0.5, label:'½ bag'},
+  {v:0.75,label:'¾ bag'},
+];
+const FRAC_SYM = {0:'',0.25:'¼',0.5:'½',0.75:'¾'};
+const STORE_KEY = 'kb_stock_sheets';
+const KEEP = 7;
+
+/* timesheet config */
+const STAFF = ['cindy','wendy','thabi','alex'];   // locked staff logins
+const TIME_KEY = 'kb_timesheets';
+const DAY_PAY = 250;            // full day rand
+const FULL_HOURS = 8;          // paid hours in a full day
+const RATE = DAY_PAY/FULL_HOURS;  // 31.25 /hr
+const KEEP_WEEKS = 3;          // history weeks kept (besides current)
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+let session = null; // {role:'owner'|'staff', user:''}
+let clockTimer = null;
+
+/* ═══════════ AUTH ═══════════ */
+function doLogin(){
+  const u = document.getElementById('uName').value.trim();
+  const p = document.getElementById('uPass').value;
+  const err = document.getElementById('gateErr');
+  if(!u || !p){ err.textContent='Enter username and password.'; return; }
+  const un = u.toLowerCase();
+  if(un===OWNER_USER && p===OWNER_PASS){
+    session = {role:'owner', user:'Grootbaas'};
+  } else if(STAFF.includes(un) && p===STAFF_PASS){
+    session = {role:'staff', user:un};
+  } else {
+    err.textContent='Incorrect username or password.'; return;
+  }
+  sessionStorage.setItem('kb_session', JSON.stringify(session));
+  enterApp();
+}
+function logout(){
+  sessionStorage.removeItem('kb_session');
+  session=null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('gate').style.display='flex';
+  document.getElementById('uName').value='';
+  document.getElementById('uPass').value='';
+  document.getElementById('gateErr').textContent='';
+}
+function enterApp(){
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').classList.remove('hidden');
+  const disp = session.user.charAt(0).toUpperCase()+session.user.slice(1);
+  document.getElementById('whoTag').innerHTML =
+    (session.role==='owner'?'Owner':'Staff')+' · <b>'+disp+'</b>';
+  if(session.role==='owner'){ show('ownerHome'); }
+  else { document.getElementById('staffHi').textContent='Welcome, '+disp; show('staffHome'); }
+}
+function homeView(){ return session.role==='owner' ? 'ownerHome' : 'staffHome'; }
+
+/* ═══════════ ROUTER ═══════════ */
+function show(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(clockTimer && id!=='staffTime'){ clearInterval(clockTimer); clockTimer=null; }
+  if(id==='ownerStock') renderSheets();
+  if(id==='ownerTime') renderOwnerTime();
+}
+function openOrderTool(){
+  // opens the existing order tool (same folder), auto-unlocked (owner already signed in)
+  window.open('ordertool-test.html?fromApp=1','_blank');
+}
+
+/* ═══════════ STOCK FORM ═══════════ */
+function todayStr(){
+  const d = new Date();
+  return d.toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function buildCapRows(){
+  const wrap = document.getElementById('capRows');
+  wrap.innerHTML = CAPS.map(c=>`
+    <div class="cap-line">
+      <div class="cap-name"><span class="cap-dot" style="background:${c.color};box-shadow:0 0 0 1px ${c.border}"></span>${c.name}</div>
+      <div class="u"><input class="num" id="cap_${c.key}_bags" type="number" min="0" inputmode="numeric" placeholder="0 bags"></div>
+      <div class="u">
+        <select class="sel" id="cap_${c.key}_frac">
+          ${FRACS.map(f=>`<option value="${f.v}">${f.label}</option>`).join('')}
+        </select>
+      </div>
+    </div>`).join('');
+}
+function addNeed(item='',qty=''){
+  const wrap = document.getElementById('needRows');
+  const row = document.createElement('div');
+  row.className='need-row';
+  row.innerHTML=`
+    <input class="txt need-item" type="text" placeholder="Item (e.g. coffee, toilet paper)" value="${item.replace(/"/g,'&quot;')}">
+    <input class="txt need-qty qty" type="text" placeholder="Qty / note" value="${qty.replace(/"/g,'&quot;')}">
+    <button class="rm" onclick="this.parentElement.remove()" title="Remove">×</button>`;
+  wrap.appendChild(row);
+}
+function addLabel(item='',qty=''){
+  const wrap = document.getElementById('labelRows');
+  const row = document.createElement('div');
+  row.className='need-row';
+  row.innerHTML=`
+    <input class="txt lab-item" type="text" placeholder="Label (e.g. Original front, Honey 500g)" value="${item.replace(/"/g,'&quot;')}">
+    <input class="txt lab-qty qty" type="text" placeholder="How short / note" value="${qty.replace(/"/g,'&quot;')}">
+    <button class="rm" onclick="this.parentElement.remove()" title="Remove">×</button>`;
+  wrap.appendChild(row);
+}
+function openStockForm(){
+  document.getElementById('stockDate').textContent = todayStr();
+  // fresh empty sheet every time
+  ['b500_bailers','b500_loose','b375_bailers','b375_loose','box500_bailers','box500_loose','box375_bailers','box375_loose','syrup_amt','barcode_rolls']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('syrup_unit').value='Litres';
+  buildCapRows();
+  document.getElementById('labelRows').innerHTML='';
+  addLabel(); // one blank row
+  document.getElementById('needRows').innerHTML='';
+  addNeed(); // one blank row to start
+  show('stockForm');
+}
+function n(id){ const v=parseFloat(document.getElementById(id).value); return isNaN(v)?0:v; }
+function capBagText(bags,frac){
+  frac=parseFloat(frac)||0;
+  if(bags===0 && frac===0) return '0';
+  if(bags>0 && frac>0) return bags+FRAC_SYM[frac]+' bags';
+  if(bags>0) return bags+(bags===1?' bag':' bags');
+  return FRAC_SYM[frac]+' bag';
+}
+function bottleText(bailers,loose){
+  const parts=[];
+  if(bailers>0) parts.push(bailers+(bailers===1?' bailer':' bailers'));
+  if(loose>0) parts.push(loose+' loose');
+  return parts.length?parts.join(' + '):'0';
+}
+
+function collectSheet(){
+  const caps={};
+  CAPS.forEach(c=>{
+    caps[c.key]={bags:n('cap_'+c.key+'_bags'), frac:parseFloat(document.getElementById('cap_'+c.key+'_frac').value)||0};
+  });
+  const needs=[];
+  document.querySelectorAll('#needRows .need-row').forEach(r=>{
+    const item=r.querySelector('.need-item').value.trim();
+    const qty=r.querySelector('.need-qty').value.trim();
+    if(item) needs.push({item,qty});
+  });
+  const labels=[];
+  document.querySelectorAll('#labelRows .need-row').forEach(r=>{
+    const item=r.querySelector('.lab-item').value.trim();
+    const qty=r.querySelector('.lab-qty').value.trim();
+    if(item) labels.push({item,qty});
+  });
+  const now=new Date();
+  return {
+    id: now.getTime(),
+    submitter: session.user,
+    dateISO: now.toISOString(),
+    dateStr: now.toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
+    timeStr: now.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}),
+    bottles:{
+      b500:{bailers:n('b500_bailers'),loose:n('b500_loose')},
+      b375:{bailers:n('b375_bailers'),loose:n('b375_loose')},
+    },
+    boxes:{
+      b500:{bailers:n('box500_bailers'),loose:n('box500_loose')},
+      b375:{bailers:n('box375_bailers'),loose:n('box375_loose')},
+    },
+    caps,
+    syrup:{amt:n('syrup_amt'),unit:document.getElementById('syrup_unit').value},
+    barcode:n('barcode_rolls'),
+    labels,
+    needs
+  };
+}
+function sheetToText(s){
+  const disp = s.submitter.charAt(0).toUpperCase()+s.submitter.slice(1);
+  let t = `*KING BRANDS — DAILY STOCK SHEET*\n`;
+  t += `Submitted by: ${disp}\n${s.dateStr} · ${s.timeStr}\n`;
+  t += `────────────────\n`;
+  t += `*BOTTLES*\n`;
+  t += `• 500g: ${bottleText(s.bottles.b500.bailers,s.bottles.b500.loose)}\n`;
+  t += `• 375g: ${bottleText(s.bottles.b375.bailers,s.bottles.b375.loose)}\n`;
+  t += `*BOXES*\n`;
+  t += `• 500g: ${bottleText(s.boxes.b500.bailers,s.boxes.b500.loose)}\n`;
+  t += `• 375g: ${bottleText(s.boxes.b375.bailers,s.boxes.b375.loose)}\n`;
+  t += `*CAPS*\n`;
+  CAPS.forEach(c=>{ t+=`• ${c.name}: ${capBagText(s.caps[c.key].bags,s.caps[c.key].frac)}\n`; });
+  t += `*SYRUP*\n• ${s.syrup.amt} ${s.syrup.unit}\n`;
+  t += `*BARCODE BACK LABELS (honey)*\n• ${s.barcode} roll(s)\n`;
+  t += `*LABELS RUNNING SHORT*\n`;
+  if(s.labels && s.labels.length){ s.labels.forEach(l=>{ t+=`• ${l.item}${l.qty?' — '+l.qty:''}\n`; }); }
+  else { t+=`• none\n`; }
+  t += `*WAREHOUSE NEEDS*\n`;
+  if(s.needs.length){ s.needs.forEach(nd=>{ t+=`• ${nd.item}${nd.qty?' — '+nd.qty:''}\n`; }); }
+  else { t+=`• none\n`; }
+  return t;
+}
+
+function submitStock(){
+  const s = collectSheet();
+  // save (keep last 7)
+  let all = JSON.parse(localStorage.getItem(STORE_KEY)||'[]');
+  all.unshift(s);
+  all = all.slice(0,KEEP);
+  localStorage.setItem(STORE_KEY, JSON.stringify(all));
+
+  const text = sheetToText(s);
+  // WhatsApp link to Andru
+  document.getElementById('waSendBtn').href =
+    'https://wa.me/'+ANDRU_WA+'?text='+encodeURIComponent(text);
+
+  // email via FormSubmit (AJAX)
+  const note = document.getElementById('emailNote');
+  note.textContent = 'Emailing to '+OWNER_EMAIL+'…';
+  fetch('https://formsubmit.co/ajax/'+OWNER_EMAIL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify({
+      _subject:'King Brands Stock Sheet — '+s.dateStr+' ('+s.submitter+')',
+      Submitter:s.submitter, Date:s.dateStr+' '+s.timeStr, Sheet:text
+    })
+  }).then(r=>r.json()).then(()=>{
+    note.textContent='✓ Emailed to '+OWNER_EMAIL;
+  }).catch(()=>{
+    note.textContent='⚠ Email not sent (check connection / first-time FormSubmit activation).';
+  });
+
+  show('stockDone');
+}
+
+/* ═══════════ OWNER: RENDER SHEETS ═══════════ */
+function renderSheets(){
+  const all = JSON.parse(localStorage.getItem(STORE_KEY)||'[]');
+  const list = document.getElementById('sheetList');
+  if(!all.length){ list.innerHTML='<div class="empty-note">No stock sheets submitted yet.</div>'; return; }
+  list.innerHTML = all.map((s,i)=>{
+    const disp=s.submitter.charAt(0).toUpperCase()+s.submitter.slice(1);
+    const stat=(k,v)=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+    let stats='';
+    stats+=stat('500g bottles',bottleText(s.bottles.b500.bailers,s.bottles.b500.loose));
+    stats+=stat('375g bottles',bottleText(s.bottles.b375.bailers,s.bottles.b375.loose));
+    stats+=stat('500g boxes',bottleText(s.boxes.b500.bailers,s.boxes.b500.loose));
+    stats+=stat('375g boxes',bottleText(s.boxes.b375.bailers,s.boxes.b375.loose));
+    CAPS.forEach(c=>{ stats+=stat(c.name,capBagText(s.caps[c.key].bags,s.caps[c.key].frac)); });
+    stats+=stat('Syrup',s.syrup.amt+' '+s.syrup.unit);
+    stats+=stat('Barcode back labels',s.barcode+' roll(s)');
+    const labels = (s.labels && s.labels.length)
+      ? `<ul class="need-list">${s.labels.map(l=>`<li><span>${esc(l.item)}</span><b>${esc(l.qty||'—')}</b></li>`).join('')}</ul>`
+      : `<div class="empty-note" style="padding:12px">Nothing flagged.</div>`;
+    const needs = s.needs.length
+      ? `<ul class="need-list">${s.needs.map(nd=>`<li><span>${esc(nd.item)}</span><b>${esc(nd.qty||'—')}</b></li>`).join('')}</ul>`
+      : `<div class="empty-note" style="padding:12px">Nothing flagged.</div>`;
+    return `
+      <div class="sheet-card${i===0?' open':''}">
+        <div class="sheet-head" onclick="this.parentElement.classList.toggle('open')">
+          <div class="who-line">
+            <span class="by">Submitted by <b>${disp}</b></span>
+            <span class="when">${s.dateStr} · ${s.timeStr}</span>
+          </div>
+          <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sheet-body">
+          <div class="stat-grid">${stats}</div>
+          <div class="sec-label">Labels running short</div>
+          ${labels}
+          <div class="sec-label">Warehouse needs</div>
+          ${needs}
+          <div class="btn-row" style="margin-top:16px">
+            <a class="btn wa" href="https://wa.me/${ANDRU_WA}?text=${encodeURIComponent(sheetToText(s))}" target="_blank" rel="noopener">Forward to WhatsApp</a>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+function esc(x){ return String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ═══════════ TIMESHEETS ═══════════ */
+// date helpers (local time)
+function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function mondayOf(d){            // Monday (00:00) of the week containing d
+  const x = new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const diff = (x.getDay()+6)%7; // 0 for Monday
+  x.setDate(x.getDate()-diff);
+  return x;
+}
+function weekKey(d){ return ymd(mondayOf(d)); }        // e.g. 2026-07-06
+function fmtTime(iso){ if(!iso) return '—'; return new Date(iso).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDayShort(dateStr){    // "2026-07-08" -> {day:'Wednesday', sub:'8 Jul'}
+  const d = new Date(dateStr+'T00:00');
+  return {day:DAY_NAMES[d.getDay()], sub:d.toLocaleDateString('en-ZA',{day:'numeric',month:'short'})};
+}
+function weekRangeLabel(mondayStr){
+  const m = new Date(mondayStr+'T00:00'); const su = new Date(m); su.setDate(su.getDate()+6);
+  const f = dt=>dt.toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+  return f(m)+' – '+f(su)+' '+su.getFullYear();
+}
+// paid net hours from a gross shift
+function netHours(inISO,outISO){
+  if(!inISO||!outISO) return 0;
+  let g = (new Date(outISO)-new Date(inISO))/3600000; // gross hours
+  if(g<0) g=0;
+  let net;
+  if(g<=FULL_HOURS) net=g;              // short shift, no lunch
+  else if(g<=FULL_HOURS+1) net=FULL_HOURS; // full day capped at 8 (lunch removed)
+  else net=g-1;                          // long day minus 1h lunch
+  return net;
+}
+function roundHrs(h){ return Math.round(h*100)/100; }
+function payOf(hrs){ return Math.round(hrs*RATE); } // nearest rand
+
+function loadTimes(){ return JSON.parse(localStorage.getItem(TIME_KEY)||'[]'); }
+function saveTimes(a){ localStorage.setItem(TIME_KEY, JSON.stringify(a)); }
+function pruneTimes(a){
+  // keep current week + KEEP_WEEKS past weeks
+  const cutoff = mondayOf(new Date()); cutoff.setDate(cutoff.getDate()-7*KEEP_WEEKS);
+  return a.filter(e=> new Date(e.date+'T00:00') >= cutoff);
+}
+function todaysEntry(name){
+  const t = ymd(new Date());
+  return loadTimes().find(e=>e.name===name && e.date===t) || null;
+}
+
+/* ── staff clock ── */
+function openTimesheet(){
+  document.getElementById('timeToday').textContent =
+    new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  show('staffTime');
+  tickClock();
+  clockTimer = setInterval(tickClock, 1000*20);
+  renderClockState();
+  renderMyWeek();
+}
+function tickClock(){
+  const el=document.getElementById('clockNow');
+  if(el) el.textContent = new Date().toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
+}
+function renderClockState(){
+  const e = todaysEntry(session.user);
+  const state=document.getElementById('clockState');
+  const btns=document.getElementById('clockBtns');
+  if(!e){
+    state.innerHTML='Not clocked in yet today';
+    btns.innerHTML='<button class="btn clockin" onclick="clockIn()">● Clock In</button>';
+  } else if(!e.out){
+    state.innerHTML='Clocked in at <b>'+fmtTime(e.in)+'</b> — have a good shift';
+    btns.innerHTML='<button class="btn clockout" onclick="clockOut()">■ Clock Out</button>';
+  } else {
+    state.innerHTML='Done for today · <b>'+fmtTime(e.in)+'</b> → <b>'+fmtTime(e.out)+'</b> = <b>'+roundHrs(e.net)+'h</b>';
+    btns.innerHTML='<span class="clock-state">See you tomorrow 👋</span>';
+  }
+}
+function clockIn(){
+  if(todaysEntry(session.user)) return;
+  const now=new Date();
+  const all=loadTimes();
+  all.push({name:session.user, date:ymd(now), in:now.toISOString(), out:null, net:0});
+  saveTimes(pruneTimes(all));
+  renderClockState(); renderMyWeek();
+}
+function clockOut(){
+  const t=ymd(new Date());
+  const all=loadTimes();
+  const e=all.find(x=>x.name===session.user && x.date===t);
+  if(!e || e.out) return;
+  e.out=new Date().toISOString();
+  e.net=netHours(e.in,e.out);
+  saveTimes(pruneTimes(all));
+  renderClockState(); renderMyWeek();
+}
+function weekEntries(name, mondayStr){
+  return loadTimes().filter(e=>e.name===name && weekKey(new Date(e.date+'T00:00'))===mondayStr)
+                    .sort((a,b)=>a.date<b.date?-1:1);
+}
+function renderMyWeek(){
+  const monStr = weekKey(new Date());
+  document.getElementById('weekRange').textContent = weekRangeLabel(monStr);
+  const es = weekEntries(session.user, monStr);
+  const wrap=document.getElementById('myWeek');
+  const todayY = ymd(new Date());
+  if(!es.length){ wrap.innerHTML='<div class="empty-note" style="padding:16px">No hours logged yet this week.</div>'; }
+  else {
+    wrap.innerHTML = es.map(e=>{
+      const f=fmtDayShort(e.date);
+      const isToday=e.date===todayY;
+      const live=!e.out;
+      const hrs = live?'<span class="badge">on shift</span>':roundHrs(e.net)+'h';
+      return `<div class="day-row${isToday?' today':''}">
+        <div class="d-day">${f.day}<small>${f.sub}</small></div>
+        <div class="d-time">${fmtTime(e.in)} → ${fmtTime(e.out)}</div>
+        <div class="d-hrs">${hrs}</div>
+      </div>`;
+    }).join('');
+  }
+  const totHrs = es.reduce((s,e)=>s+(e.out?e.net:0),0);
+  document.getElementById('myHours').textContent = roundHrs(totHrs)+'h';
+  document.getElementById('myPay').textContent = 'R'+payOf(totHrs);
+}
+
+/* ── owner view ── */
+function empWeek(name, mondayStr){
+  const es = weekEntries(name, mondayStr);
+  const hrs = es.reduce((s,e)=>s+(e.out?e.net:0),0);
+  return {es, hrs:roundHrs(hrs), pay:payOf(hrs)};
+}
+function dayGridHTML(es){
+  // Mon..Sun rows, only worked days filled
+  const byDate={}; es.forEach(e=>byDate[e.date]=e);
+  const todayY=ymd(new Date());
+  let out='';
+  const mon=new Date(es.length?weekKey(new Date(es[0].date+'T00:00'))+'T00:00':ymd(mondayOf(new Date()))+'T00:00');
+  for(let i=0;i<7;i++){
+    const d=new Date(mon); d.setDate(d.getDate()+i);
+    const key=ymd(d); const e=byDate[key];
+    const f={day:DAY_NAMES[d.getDay()], sub:d.toLocaleDateString('en-ZA',{day:'numeric',month:'short'})};
+    const isToday=key===todayY;
+    if(e){
+      const live=!e.out;
+      const hrs= live?'<span class="badge">on shift</span>':roundHrs(e.net)+'h';
+      out+=`<div class="day-row${isToday?' today':''}">
+        <div class="d-day">${f.day}<small>${f.sub}</small></div>
+        <div class="d-time">${fmtTime(e.in)} → ${fmtTime(e.out)}</div>
+        <div class="d-hrs">${hrs}</div></div>`;
+    } else {
+      out+=`<div class="day-row off${isToday?' today':''}">
+        <div class="d-day">${f.day}<small>${f.sub}</small></div>
+        <div class="d-time">—</div><div class="d-hrs">0h</div></div>`;
+    }
+  }
+  return out;
+}
+function pastWeekKeys(){
+  const keys=[]; const cur=mondayOf(new Date());
+  for(let i=1;i<=KEEP_WEEKS;i++){ const d=new Date(cur); d.setDate(d.getDate()-7*i); keys.push(ymd(d)); }
+  return keys;
+}
+function renderOwnerTime(){
+  const monStr = weekKey(new Date());
+  document.getElementById('ownerTimeWeek').textContent = 'This week · '+weekRangeLabel(monStr);
+  // current week per employee
+  document.getElementById('ownerWeekNow').innerHTML = STAFF.map(name=>{
+    const w=empWeek(name,monStr);
+    const disp=name.charAt(0).toUpperCase()+name.slice(1);
+    return `<div class="emp-card${w.hrs>0?' open':''}">
+      <div class="emp-head" onclick="this.parentElement.classList.toggle('open')">
+        <div class="nm">${disp}</div>
+        <div class="rt">
+          <div class="mini"><small>Hours</small><b>${w.hrs}h</b></div>
+          <div class="mini"><small>Owed this week</small><b>R${w.pay}</b></div>
+          <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="emp-body">${dayGridHTML(w.es)}</div>
+    </div>`;
+  }).join('');
+  // history — past weeks
+  const keys=pastWeekKeys();
+  let hist='<div class="week-title">Past weeks</div>';
+  let any=false;
+  hist += STAFF.map(name=>{
+    const rows=keys.map(k=>{ const w=empWeek(name,k); if(w.hrs<=0) return ''; any=true;
+      return `<li><span class="wk">${weekRangeLabel(k)}</span><span class="hrs">${w.hrs}h</span><span class="amt">R${w.pay}</span></li>`;
+    }).filter(Boolean).join('');
+    if(!rows) return '';
+    const disp=name.charAt(0).toUpperCase()+name.slice(1);
+    return `<div class="week-title" style="color:var(--gold-bright)">${disp}</div><ul class="paid-list">${rows}</ul>`;
+  }).join('');
+  document.getElementById('ownerWeekHist').innerHTML = any ? hist :
+    '<div class="week-title">Past weeks</div><div class="empty-note">No past weeks recorded yet.</div>';
+}
+
+/* ═══════════ INIT ═══════════ */
+document.getElementById('uPass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+(function restore(){
+  const saved = sessionStorage.getItem('kb_session');
+  if(saved){ session=JSON.parse(saved); enterApp(); }
+})();
+</script>
+</body>
+</html>

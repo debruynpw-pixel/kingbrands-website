@@ -220,16 +220,14 @@ main{padding:34px 0 90px}
   .cnt{font-size:1.15rem}
   .x-btn{top:2px;width:32px;height:32px}
   .wa-btn{width:100%;justify-content:center;padding:15px}
-  .prod-grid{grid-template-columns:1fr 1fr;gap:10px}
-  .prod{padding:13px}
+  .prod-grid{grid-template-columns:1fr;gap:12px}
+  .prod{padding:16px}
   .brand-grid{grid-template-columns:1fr;gap:12px}
   .brand-btn{padding:24px 20px}
   #brandSwitch{margin-left:0}
   .bar-inner{flex-wrap:wrap;gap:8px}
-  .tabs{position:sticky;top:64px;z-index:40}
   .btn{flex:1;text-align:center}
 }
-@media(max-width:380px){.prod-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -431,6 +429,8 @@ function showApp(){
   backToBrands();
 }
 document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+// auto-unlock when opened from the Staff App (owner already logged in)
+if(new URLSearchParams(location.search).get('fromApp')==='1'){ sessionStorage.setItem('kb_auth','1'); }
 if(sessionStorage.getItem('kb_auth')==='1') showApp();
 
 /* ══════════ VIEW ROUTING ══════════ */
