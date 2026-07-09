@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>King Brands — Production & Supplier Tool</title>
+<link rel="icon" type="image/jpeg" href="assets/kb-logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#050b1c; --navy-900:#0a1330; --navy-850:#0d1839; --navy-800:#122048;
+  --gold:#d4af37; --gold-bright:#f0c75e; --gold-deep:#a17c1a;
+  --white:#fff; --cream:#f5f1e6; --cream-dim:#c2bcae;
+  --ink:#101828;
+  --line-d:rgba(212,175,55,.18);
+  --radius:18px; --ease:cubic-bezier(.22,1,.36,1);
+  --wa:#25d366;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(ellipse 60% 40% at 50% -8%, #11204a 0%, transparent 60%),
+    linear-gradient(180deg,#0a1330 0%,#050b1c 60%);
+  background-attachment:fixed;
+  color:var(--cream); font-family:'Manrope',sans-serif; line-height:1.6; min-height:100dvh;
+  overflow-x:hidden;
+}
+::selection{background:var(--gold);color:var(--navy-950)}
+h1,h2,h3{font-family:'Cinzel',serif;font-weight:600;line-height:1.16}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select{font-family:inherit}
+.container{width:min(1120px,94%);margin:0 auto}
+
+/* ── HEADER ── */
+header.bar{position:sticky;top:0;z-index:50;background:rgba(5,11,28,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-d)}
+.bar-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;width:min(1120px,94%);margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{height:40px;width:40px;object-fit:cover;border-radius:9px;box-shadow:0 0 0 1px var(--line-d)}
+.brand span{font-family:'Cinzel',serif;font-size:.82rem;letter-spacing:.12em;font-weight:700}
+.brand span b{color:var(--gold)}
+#logoutBtn{background:rgba(212,175,55,.1);border:1px solid var(--line-d);color:var(--gold-bright);padding:8px 16px;border-radius:100px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+#logoutBtn:hover{background:rgba(212,175,55,.2)}
+
+/* ── LOGIN GATE ── */
+#gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:radial-gradient(ellipse 60% 45% at 50% 0%, #11204a 0%, transparent 60%),linear-gradient(180deg,#0a1330,#050b1c)}
+.gate-card{width:min(400px,100%);background:linear-gradient(160deg,rgba(18,32,72,.7),rgba(10,19,48,.7));
+  border:1px solid var(--line-d);border-radius:var(--radius);padding:38px 32px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.gate-card img{height:60px;width:60px;object-fit:cover;border-radius:14px;margin:0 auto 18px;box-shadow:0 0 0 1px var(--line-d)}
+.gate-card h1{font-size:1.35rem;color:var(--white);margin-bottom:6px}
+.gate-card p{font-size:.82rem;color:var(--cream-dim);margin-bottom:24px}
+.gate-card input{width:100%;padding:14px 16px;border-radius:12px;background:rgba(5,11,28,.6);border:1px solid var(--line-d);
+  color:var(--cream);font-size:1rem;text-align:center;letter-spacing:.15em;margin-bottom:14px}
+.gate-card input:focus{outline:none;border-color:var(--gold)}
+.gate-card button{width:100%;padding:14px;border-radius:100px;font-weight:800;letter-spacing:.06em;
+  background:linear-gradient(135deg,var(--gold-deep),var(--gold) 50%,var(--gold-bright));color:var(--navy-950);font-size:.95rem}
+.gate-err{color:#ff8080;font-size:.8rem;margin-top:12px;min-height:1em}
+
+/* ── LAYOUT ── */
+main{padding:34px 0 90px}
+.page-head{margin-bottom:26px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px}
+.eyebrow::before{content:'';width:26px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.page-head h1{font-size:clamp(1.7rem,4vw,2.5rem);color:var(--white)}
+.page-head p{color:var(--cream-dim);font-size:.9rem;margin-top:6px;max-width:640px}
+
+/* brand switch in header */
+#brandSwitch{display:inline-flex;align-items:center;gap:6px;background:rgba(212,175,55,.1);border:1px solid var(--line-d);
+  color:var(--cream-dim);padding:5px 12px;border-radius:100px;font-size:.72rem;letter-spacing:.04em;margin-left:6px}
+#brandSwitch b{color:var(--gold-bright);font-weight:700}
+#brandSwitch:hover{background:rgba(212,175,55,.2);color:var(--cream)}
+
+/* brand picker */
+.brand-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:760px;margin:0 auto}
+.brand-btn{position:relative;overflow:hidden;text-align:left;display:flex;flex-direction:column;gap:6px;padding:30px 26px;border-radius:var(--radius);
+  background:linear-gradient(160deg,rgba(18,32,72,.6),rgba(10,19,48,.6));border:1px solid var(--line-d);color:var(--cream);
+  transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
+.brand-btn:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.brand-btn::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 100% 0%,rgba(212,175,55,.14),transparent 55%);pointer-events:none}
+.brand-emblem{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:rgba(212,175,55,.12);border:1px solid var(--line-d);color:var(--gold);margin-bottom:8px}
+.brand-emblem svg{width:30px;height:30px}
+.brand-name{font-family:'Cinzel',serif;font-size:1.5rem;color:var(--white);font-weight:700}
+.brand-desc{font-size:.82rem;color:var(--cream-dim)}
+.brand-go{margin-top:12px;font-size:.8rem;font-weight:800;letter-spacing:.05em;color:var(--gold-bright)}
+.brand-btn.nectarly .brand-emblem{background:rgba(240,199,94,.1)}
+.pick-cta{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap;max-width:760px;margin-left:auto;margin-right:auto}
+.pick-cta .btn{flex:1;min-width:180px;text-align:center}
+
+/* summary recap */
+.recap-brand{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:12px 0;border-top:1px solid rgba(212,175,55,.1)}
+.recap-brand:first-of-type{border-top:none}
+.recap-tag{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px}
+.recap-tag.gj{background:rgba(212,175,55,.16);color:var(--gold-bright)}
+.recap-tag.nec{background:rgba(240,199,94,.12);color:var(--gold-bright)}
+.recap-item{font-size:.85rem;color:var(--cream);display:inline-flex;align-items:center}
+.recap-item .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;box-shadow:0 0 0 1px rgba(255,255,255,.2)}
+.recap-item b{color:var(--gold-bright);margin-left:4px}
+
+.tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.tab{padding:10px 20px;border-radius:100px;background:rgba(18,32,72,.5);border:1px solid var(--line-d);
+  color:var(--cream-dim);font-size:.8rem;font-weight:700;letter-spacing:.05em;transition:all .25s}
+.tab.active{background:linear-gradient(135deg,var(--gold-deep),var(--gold));color:var(--navy-950)}
+
+.panel{display:none;animation:fade .4s var(--ease)}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.card{background:linear-gradient(160deg,rgba(18,32,72,.55),rgba(10,19,48,.55));border:1px solid var(--line-d);
+  border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.card h2{font-size:1.1rem;color:var(--gold-bright);margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.card h2 .num{font-family:'Manrope';font-size:.72rem;background:rgba(212,175,55,.15);color:var(--gold);
+  width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800}
+.card .sub{font-size:.8rem;color:var(--cream-dim);margin-bottom:18px}
+
+/* ── ORDER GRID ── */
+.meta-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.meta-row label{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:6px;font-weight:700}
+.meta-row input{width:100%;padding:11px 14px;border-radius:10px;background:rgba(5,11,28,.5);border:1px solid var(--line-d);color:var(--cream);font-size:.9rem}
+.meta-row input:focus{outline:none;border-color:var(--gold)}
+
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.prod{background:rgba(5,11,28,.4);border:1px solid var(--line-d);border-radius:14px;padding:16px;transition:border-color .25s}
+.prod:focus-within,.prod.has-qty{border-color:var(--gold)}
+.prod-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.cap-dot{width:20px;height:20px;border-radius:50%;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.15),0 2px 6px rgba(0,0,0,.4)}
+.prod-name{font-weight:700;font-size:.9rem;color:var(--white)}
+.prod-size{font-size:.72rem;color:var(--cream-dim)}
+.qty-row{display:flex;align-items:center;gap:8px}
+.qty-row button{width:34px;height:34px;border-radius:9px;background:rgba(212,175,55,.12);border:1px solid var(--line-d);
+  color:var(--gold-bright);font-size:1.2rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.qty-row button:hover{background:rgba(212,175,55,.25)}
+.qty-row input{flex:1;text-align:center;padding:8px;border-radius:9px;background:rgba(5,11,28,.6);border:1px solid var(--line-d);color:var(--white);font-size:1rem;font-weight:700;-moz-appearance:textfield}
+.qty-row input::-webkit-outer-spin-button,.qty-row input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.qty-row input:focus{outline:none;border-color:var(--gold)}
+.qty-unit{font-size:.68rem;color:var(--cream-dim);text-align:center;margin-top:6px}
+
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.btn{padding:13px 26px;border-radius:100px;font-weight:800;letter-spacing:.04em;font-size:.9rem;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-gold{background:linear-gradient(135deg,var(--gold-deep),var(--gold) 50%,var(--gold-bright));color:var(--navy-950);box-shadow:0 6px 20px rgba(212,175,55,.3)}
+.btn-ghost{background:rgba(212,175,55,.08);border:1px solid var(--line-d);color:var(--gold-bright)}
+
+/* ── RESULTS ── */
+#results{margin-top:8px}
+.summary-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:rgba(5,11,28,.4);border:1px solid var(--line-d);border-radius:12px;padding:14px 16px;text-align:center}
+.stat .n{font-family:'Cinzel',serif;font-size:1.5rem;color:var(--gold-bright);font-weight:700}
+.stat .l{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cream-dim);margin-top:2px}
+
+.supplier{border:1px solid var(--line-d);border-radius:16px;padding:22px;margin-bottom:18px;background:rgba(5,11,28,.35)}
+.sup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.sup-head h3{font-size:1.15rem;color:var(--white);display:flex;align-items:center;gap:10px}
+.sup-icon{width:24px;height:24px;color:var(--gold);flex:none}
+.sup-head .contact{font-size:.8rem;color:var(--cream-dim);margin-top:3px}
+.sup-head .contact b{color:var(--gold-bright);font-weight:700}
+.item-line{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid rgba(212,175,55,.1);font-size:.9rem}
+.item-line:last-of-type{border-bottom:none}
+.item-line .lbl{color:var(--cream)}
+.item-line .lbl .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,.2)}
+.item-line .val{text-align:right;white-space:nowrap}
+.item-line .val b{color:var(--gold-bright);font-weight:800;font-size:1rem}
+.item-line{position:relative}
+.item-line .val small,.item-line .val .sub{display:block;color:var(--cream-dim);font-size:.72rem;margin-top:3px}
+.item-line .val{flex:1;display:flex;flex-direction:column;align-items:flex-end}
+.item-line.stepped,.item-line:has(.x-btn){padding-right:40px}
+/* stepper */
+.stepper{display:flex;align-items:center;gap:6px}
+.step{width:30px;height:30px;border-radius:8px;background:rgba(212,175,55,.14);border:1px solid var(--line-d);
+  color:var(--gold-bright);font-size:1.25rem;line-height:1;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;transition:background .2s}
+.step:hover{background:rgba(212,175,55,.28)}
+.step:active{transform:scale(.92)}
+.cnt-wrap{min-width:78px;text-align:center;white-space:nowrap}
+.cnt{color:var(--gold-bright);font-weight:800;font-size:1.05rem}
+.unit{color:var(--gold-bright);font-weight:700;font-size:.82rem}
+.x-btn{position:absolute;top:12px;right:0;flex:none;width:28px;height:28px;border-radius:50%;background:rgba(255,90,90,.1);border:1px solid rgba(255,90,90,.3);
+  color:#ff9090;font-size:1.15rem;line-height:1;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.x-btn:hover{background:rgba(255,90,90,.22)}
+.item-line.excluded{opacity:.4}
+.item-line.excluded .lbl,.item-line.excluded .val b,.item-line.excluded .cnt,.item-line.excluded .unit,.item-line.excluded .sub{text-decoration:line-through}
+.item-line.excluded .x-btn{background:rgba(37,211,102,.12);border-color:rgba(37,211,102,.35);color:var(--wa);text-decoration:none}
+.wa-btn.disabled{background:#3a4152;color:#8a92a3;box-shadow:none;pointer-events:none}
+.wa-btn.disabled svg{fill:#8a92a3}
+.note{font-size:.76rem;color:var(--gold);background:rgba(212,175,55,.08);border:1px dashed var(--line-d);border-radius:9px;padding:9px 12px;margin-top:12px}
+.wa-btn{display:inline-flex;align-items:center;gap:9px;margin-top:16px;padding:12px 22px;border-radius:100px;
+  background:var(--wa);color:#04310f;font-weight:800;font-size:.88rem;box-shadow:0 6px 18px rgba(37,211,102,.3);transition:transform .2s}
+.wa-btn:hover{transform:translateY(-2px)}
+.wa-btn svg{width:18px;height:18px;fill:#04310f}
+
+.empty{text-align:center;color:var(--cream-dim);padding:40px 20px;font-size:.9rem}
+
+/* history */
+.hist-item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px 16px;background:rgba(5,11,28,.4);
+  border:1px solid var(--line-d);border-radius:12px;margin-bottom:10px;flex-wrap:wrap}
+.hist-item .h-main b{color:var(--white)}
+.hist-item .h-main small{display:block;color:var(--cream-dim);font-size:.74rem}
+.hist-item .h-act{display:flex;gap:8px}
+.hist-item .h-act button{padding:7px 14px;border-radius:8px;font-size:.74rem;font-weight:700;background:rgba(212,175,55,.12);border:1px solid var(--line-d);color:var(--gold-bright)}
+.hist-item .h-act button.del{background:rgba(255,90,90,.1);border-color:rgba(255,90,90,.3);color:#ff9090}
+
+@media(max-width:640px){
+  .meta-row{grid-template-columns:1fr}
+  main{padding:22px 0 70px}
+  .card{padding:18px}
+  .summary-strip{grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px}
+  .stat{padding:11px 8px}
+  .stat .n{font-size:1.2rem}
+  .supplier{padding:16px}
+  .sup-head h3{font-size:1.05rem}
+  /* stack each order line: label on top, controls below */
+  .item-line{flex-wrap:wrap;padding-right:34px}
+  .item-line .lbl{flex:1 1 100%;font-size:.92rem;margin-bottom:6px}
+  .item-line .val{flex:1 1 100%;align-items:flex-start}
+  .stepper{gap:10px}
+  .step{width:38px;height:38px}
+  .cnt-wrap{min-width:90px}
+  .cnt{font-size:1.15rem}
+  .x-btn{top:2px;width:32px;height:32px}
+  .wa-btn{width:100%;justify-content:center;padding:15px}
+  .prod-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .prod{padding:13px}
+  .brand-grid{grid-template-columns:1fr;gap:12px}
+  .brand-btn{padding:24px 20px}
+  #brandSwitch{margin-left:0}
+  .bar-inner{flex-wrap:wrap;gap:8px}
+  .tabs{position:sticky;top:64px;z-index:40}
+  .btn{flex:1;text-align:center}
+}
+@media(max-width:380px){.prod-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="gate">
+  <div class="gate-card">
+    <img src="assets/kb-logo.jpeg" alt="King Brands" onerror="this.style.display='none'">
+    <h1>Production Tool</h1>
+    <p>King Brands staff access only</p>
+    <input type="password" id="pw" placeholder="Enter password" autocomplete="current-password">
+    <button onclick="tryLogin()">Enter</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+<header class="bar">
+  <div class="bar-inner">
+    <div class="brand">
+      <img src="assets/kb-logo.jpeg" alt="" onerror="this.style.display='none'">
+      <span>KING <b>BRANDS</b> · PRODUCTION</span>
+      <button id="brandSwitch" onclick="backToBrands()" style="display:none">← <b id="brandSwitchName">Gold Joy</b> · change</button>
+    </div>
+    <button id="logoutBtn" onclick="logout()">Log out</button>
+  </div>
+</header>
+
+<main>
+<div class="container">
+
+  <!-- BRAND PICKER -->
+  <section id="brandPick">
+    <div class="page-head" style="text-align:center;margin-bottom:30px">
+      <div class="eyebrow" style="justify-content:center">Production · New Order</div>
+      <h1>What are you ordering for?</h1>
+      <p style="margin:6px auto 0">Select boxes on each brand, then open the combined order summary.</p>
+    </div>
+    <div class="brand-grid">
+      <button class="brand-btn goldjoy" onclick="openBrand('goldjoy')">
+        <span class="brand-emblem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4v2.5a3 3 0 0 0 .9 2.1l1.2 1.2A4 4 0 0 1 17.3 10v9a3 3 0 0 1-3 3H9.7a3 3 0 0 1-3-3v-9a4 4 0 0 1 1.2-2.2l1.2-1.2A3 3 0 0 0 10 4.5z"/><path d="M6.7 12.5h10.6"/></svg>
+        </span>
+        <span class="brand-name">Gold Joy</span>
+        <span class="brand-desc">Syrups · 4 flavours × 500g / 375g</span>
+        <span class="brand-go" id="pickGjCount">Select boxes →</span>
+      </button>
+      <button class="brand-btn nectarly" onclick="openBrand('nectarly')">
+        <span class="brand-emblem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 5 6v6c0 4 3 7 7 8 4-1 7-4 7-8V6z"/><path d="M9 12h6M9 9h6M9 15h6"/></svg>
+        </span>
+        <span class="brand-name">Nectarly</span>
+        <span class="brand-desc">Pure honey · 500g / 375g</span>
+        <span class="brand-go" id="pickNecCount">Select boxes →</span>
+      </button>
+    </div>
+    <div class="pick-cta">
+      <button class="btn btn-gold" onclick="openBrand('summary')">View order summary →</button>
+      <button class="btn btn-ghost" onclick="openBrand('history')">Saved orders</button>
+    </div>
+  </section>
+
+  <!-- GOLD JOY (select syrup boxes) -->
+  <section id="view-goldjoy" style="display:none">
+    <div class="page-head">
+      <div class="eyebrow">Gold Joy · Syrups</div>
+      <h1>Select syrup boxes</h1>
+      <p>Enter quantity in <b>boxes</b> (each box = 24 units).</p>
+    </div>
+    <div class="card">
+      <div class="prod-grid" id="prodGrid"></div>
+      <div class="actions">
+        <button class="btn btn-gold" onclick="openBrand('summary')">View order summary →</button>
+        <button class="btn btn-ghost" onclick="clearBrand('goldjoy')">Clear Gold Joy</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- NECTARLY (select honey boxes) -->
+  <section id="view-nectarly" style="display:none">
+    <div class="page-head">
+      <div class="eyebrow">Nectarly · Pure Honey</div>
+      <h1>Select honey boxes</h1>
+      <p>Enter quantity in <b>boxes</b> (each box = 24 units). Same bottles, white caps & boxes as Gold Joy; fill = honey + glucose + syrup.</p>
+    </div>
+    <div class="card">
+      <div class="prod-grid" id="necGrid"></div>
+      <div class="actions">
+        <button class="btn btn-gold" onclick="openBrand('summary')">View order summary →</button>
+        <button class="btn btn-ghost" onclick="clearBrand('nectarly')">Clear Nectarly</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMBINED SUMMARY -->
+  <section id="view-summary" style="display:none">
+    <div class="page-head">
+      <div class="eyebrow">Combined Order Summary</div>
+      <h1>What to order</h1>
+      <p>Gold Joy + Nectarly combined. Ankot &amp; Box Brothers totals are added together across both brands, then rounded to full bailers.</p>
+    </div>
+    <div class="card">
+      <h2><span class="num">1</span> Order Details</h2>
+      <div class="meta-row">
+        <div><label>Customer / Reference</label><input type="text" id="custName" placeholder="e.g. Cambridge Foods PO#1042"></div>
+        <div><label>Date</label><input type="text" id="orderDate" readonly></div>
+      </div>
+      <div class="actions" style="margin-top:6px">
+        <button class="btn btn-ghost" onclick="openBrand('goldjoy')">← Edit Gold Joy</button>
+        <button class="btn btn-ghost" onclick="openBrand('nectarly')">← Edit Nectarly</button>
+      </div>
+    </div>
+    <div id="summaryResults"></div>
+  </section>
+
+  <!-- SAVED ORDERS -->
+  <section id="view-history" style="display:none">
+    <div class="page-head">
+      <div class="eyebrow">Saved Orders</div>
+      <h1>Saved orders</h1>
+      <p>Stored on this device only (test mode).</p>
+    </div>
+    <div class="card">
+      <div id="histList"></div>
+      <div class="actions" style="margin-top:16px">
+        <button class="btn btn-ghost" onclick="backToBrands()">← Back to brands</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+</main>
+</div>
+
+<script>
+/* ══════════ CONFIG ══════════ */
+const PASSWORD = "king2024";   // change here anytime
+
+const UNITS_PER_BOX = 24;
+
+const FLAVOURS = [
+  {key:"original", name:"Original",  cap:"White",  color:"#f4f4f4"},
+  {key:"cinnamon", name:"Cinnamon",  cap:"Orange", color:"#e8842b"},
+  {key:"lemon",    name:"Lemon",     cap:"Green",  color:"#4faf4f"},
+  {key:"ginger",   name:"Ginger",    cap:"Pink",   color:"#e86a9b"},
+];
+const SIZES = [
+  {key:"500", name:"500g", bottleBailer:348},
+  {key:"375", name:"375g", bottleBailer:170},
+];
+
+// Nectarly = pure honey, single product, white cap, both sizes
+const HONEY = {key:"honey", name:"Pure Honey", cap:"White", color:"#f4f4f4"};
+
+const SUPPLIERS = {
+  ankot:{ name:"Ankot Plastics",    person:"Vule",     phone:"27719831321", supplies:"Bottles & caps" },
+  box:  { name:"Box Brothers",      person:"Coenraad", phone:"27835704271", supplies:"Boxes" },
+  jutagz:{name:"Jutagz",            person:"Kim",      phone:"27722936319", supplies:"Labels" },
+  marico:{name:"Marico River Honey",person:"Marico",   phone:"27761111145", supplies:"Pure honey" },
+  sugar:{ name:"Sugar on Tap",      person:"Kobus",    phone:"27664720969", supplies:"Glucose" },
+};
+
+const CAPS_BAG   = 1000;   // per colour
+const BOX_BAILER = 25;     // boxes per bailer, round to nearest 25
+const LABEL_MIN  = 14000;  // bulk minimum front & back
+
+// Nectarly fill — boxes needed to use up 1 full bucket. Order whole buckets, round up, min 1.
+const BUCKET = {
+  honey:  {boxesPerBucket:10, supplier:'marico'},  // 5 boxes = ½ bucket → 10 = 1
+  glucose:{boxesPerBucket:15, supplier:'sugar'},   // 5 boxes = ⅓ bucket → 15 = 1
+  syrup:  {boxesPerBucket:5,  internal:true},      // 5 boxes = 1 bucket (from bulk stock)
+};
+
+const VIEWS=['goldjoy','nectarly','summary','history'];
+const VIEW_NAMES={goldjoy:'Gold Joy',nectarly:'Nectarly',summary:'Order Summary',history:'Saved Orders'};
+
+/* ══════════ HELPERS ══════════ */
+const ceil = (n,per) => Math.ceil(n/per);          // full bailers/bags needed
+const roundBox = q => Math.ceil(q/BOX_BAILER)*BOX_BAILER; // round up to nearest 25
+
+/* ══════════ LOGIN ══════════ */
+function tryLogin(){
+  const v = document.getElementById('pw').value;
+  if(v === PASSWORD){
+    sessionStorage.setItem('kb_auth','1');
+    showApp();
+  } else {
+    document.getElementById('gateErr').textContent = "Wrong password.";
+  }
+}
+function logout(){ sessionStorage.removeItem('kb_auth'); location.reload(); }
+function showApp(){
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  buildGrid();
+  setDate();
+  renderHistory();
+  backToBrands();
+}
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+if(sessionStorage.getItem('kb_auth')==='1') showApp();
+
+/* ══════════ VIEW ROUTING ══════════ */
+function openBrand(v){
+  document.getElementById('brandPick').style.display='none';
+  VIEWS.forEach(x=>document.getElementById('view-'+x).style.display = x===v?'block':'none');
+  const sw=document.getElementById('brandSwitch');
+  sw.style.display='inline-flex';
+  document.getElementById('brandSwitchName').textContent=VIEW_NAMES[v];
+  if(v==='summary') renderSummary();
+  if(v==='history') renderHistory();
+  window.scrollTo({top:0});
+}
+function backToBrands(){
+  document.getElementById('brandPick').style.display='block';
+  VIEWS.forEach(x=>document.getElementById('view-'+x).style.display='none');
+  document.getElementById('brandSwitch').style.display='none';
+  updatePickCounts();
+  window.scrollTo({top:0});
+}
+function updatePickCounts(){
+  const gj=readGoldJoy().reduce((a,l)=>a+l.boxes,0);
+  const nec=readNectarly().reduce((a,l)=>a+l.boxes,0);
+  document.getElementById('pickGjCount').textContent  = gj ? `${gj} boxes selected · edit →` : 'Select boxes →';
+  document.getElementById('pickNecCount').textContent = nec? `${nec} boxes selected · edit →` : 'Select boxes →';
+}
+
+function setDate(){
+  const d = new Date();
+  document.getElementById('orderDate').value =
+    d.getDate().toString().padStart(2,'0')+"/"+(d.getMonth()+1).toString().padStart(2,'0')+"/"+d.getFullYear();
+}
+
+/* ══════════ BUILD GRIDS ══════════ */
+function prodCard(id,color,name,sub){
+  return `<div class="prod" id="prod_${id}">
+    <div class="prod-top">
+      <span class="cap-dot" style="background:${color}"></span>
+      <div><div class="prod-name">${name}</div><div class="prod-size">${sub}</div></div>
+    </div>
+    <div class="qty-row">
+      <button onclick="bump('${id}',-1)">−</button>
+      <input type="number" min="0" value="0" id="qty_${id}" oninput="markQty('${id}')">
+      <button onclick="bump('${id}',1)">+</button>
+    </div>
+    <div class="qty-unit">boxes</div>
+  </div>`;
+}
+function buildGrid(){
+  const g = document.getElementById('prodGrid');
+  g.innerHTML='';
+  FLAVOURS.forEach(f=>SIZES.forEach(s=>{
+    g.insertAdjacentHTML('beforeend',prodCard(f.key+'_'+s.key,f.color,f.name,`${s.name} · ${f.cap} cap`));
+  }));
+  const ng = document.getElementById('necGrid');
+  ng.innerHTML='';
+  SIZES.forEach(s=>{
+    ng.insertAdjacentHTML('beforeend',prodCard('honey_'+s.key,HONEY.color,HONEY.name,`${s.name} · ${HONEY.cap} cap`));
+  });
+}
+function bump(id,d){
+  const el=document.getElementById('qty_'+id);
+  el.value=Math.max(0,(parseInt(el.value)||0)+d);
+  markQty(id);
+}
+function markQty(id){
+  const v=parseInt(document.getElementById('qty_'+id).value)||0;
+  document.getElementById('prod_'+id).classList.toggle('has-qty',v>0);
+}
+function clearBrand(brand){
+  if(brand==='goldjoy') FLAVOURS.forEach(f=>SIZES.forEach(s=>setQty(f.key+'_'+s.key,0)));
+  else SIZES.forEach(s=>setQty('honey_'+s.key,0));
+  updatePickCounts();
+}
+function setQty(id,v){ const el=document.getElementById('qty_'+id); if(el){el.value=v;markQty(id);} }
+
+/* ══════════ READ SELECTIONS ══════════ */
+function readGoldJoy(){
+  const lines=[];
+  FLAVOURS.forEach(f=>SIZES.forEach(s=>{
+    const q=parseInt(document.getElementById('qty_'+f.key+'_'+s.key).value)||0;
+    if(q>0) lines.push({flavour:f,size:s,boxes:q});
+  }));
+  return lines;
+}
+function readNectarly(){
+  const lines=[];
+  SIZES.forEach(s=>{
+    const q=parseInt(document.getElementById('qty_honey_'+s.key).value)||0;
+    if(q>0) lines.push({size:s,boxes:q});
+  });
+  return lines;
+}
+
+/* ══════════ COMBINED CALC ══════════ */
+function computeCombined(gj,nec){
+  const bottles={"500":0,"375":0};   // combined units, both brands
+  const boxes={"500":0,"375":0};     // combined box counts, both brands
+  const caps={original:0,cinnamon:0,lemon:0,ginger:0}; // GJ per colour (white=original)
+  let gjUnits=0, necUnits=0, necBoxes=0;
+
+  gj.forEach(l=>{const u=l.boxes*UNITS_PER_BOX;gjUnits+=u;bottles[l.size.key]+=u;boxes[l.size.key]+=l.boxes;caps[l.flavour.key]+=u;});
+  nec.forEach(l=>{const u=l.boxes*UNITS_PER_BOX;necUnits+=u;necBoxes+=l.boxes;bottles[l.size.key]+=u;boxes[l.size.key]+=l.boxes;});
+
+  // white caps merge: GJ Original + all Nectarly honey
+  const capsWhite = caps.original + necUnits;
+  return {bottles,boxes,caps,capsWhite,gjUnits,necUnits,necBoxes};
+}
+// buckets to order: whole buckets, round up, min 1 (if any boxes). need shown as decimal.
+function bucketsFor(boxes,per){ if(boxes<=0) return {order:0,need:0}; return {order:Math.max(1,Math.ceil(boxes/per)), need:+(boxes/per).toFixed(2)}; }
+
+/* ══════════ RENDER SUMMARY ══════════ */
+function renderSummary(){
+  const gj=readGoldJoy(), nec=readNectarly();
+  const box=document.getElementById('summaryResults');
+  if(!gj.length && !nec.length){
+    box.innerHTML='<div class="card"><div class="empty">Nothing selected yet. Go to Gold Joy or Nectarly and add boxes.</div></div>';
+    return;
+  }
+  const c=computeCombined(gj,nec);
+  const gjBoxes=gj.reduce((a,l)=>a+l.boxes,0);
+  const necBoxes=nec.reduce((a,l)=>a+l.boxes,0);
+
+  /* ── products selected recap ── */
+  let recap='';
+  if(gj.length) recap+=`<div class="recap-brand"><span class="recap-tag gj">Gold Joy</span>`+
+    gj.map(l=>`<span class="recap-item"><span class="dot" style="background:${l.flavour.color}"></span>${l.flavour.name} ${l.size.name} · <b>${l.boxes}</b></span>`).join('')+`</div>`;
+  if(nec.length) recap+=`<div class="recap-brand"><span class="recap-tag nec">Nectarly</span>`+
+    nec.map(l=>`<span class="recap-item"><span class="dot" style="background:${HONEY.color}"></span>Pure Honey ${l.size.name} · <b>${l.boxes}</b></span>`).join('')+`</div>`;
+
+  let html=`<div class="card"><h2><span class="num">2</span> Products Selected</h2>
+    <div class="sub">${gjBoxes} Gold Joy + ${necBoxes} Nectarly = <b>${gjBoxes+necBoxes} boxes</b></div>
+    ${recap}</div>`;
+
+  html+=`<div class="card"><h2><span class="num">3</span> Order From Suppliers</h2>
+    <div class="sub">Ankot &amp; Box Brothers are combined across both brands. Tap a WhatsApp button to send.</div>`;
+
+  /* ── ANKOT: combined bottles + caps ── */
+  html+=supplierCard('ankot',()=>{
+    let items=[];
+    SIZES.forEach(s=>{
+      const need=c.bottles[s.key];
+      if(need>0) items.push(orderLine({label:`${s.name} bottles`,count:ceil(need,s.bottleBailer),
+        pack:s.bottleBailer,unit:'bailer',need,needWord:'bottles',fragLabel:`${s.name} bottles`}));
+    });
+    // caps: white merged, then other GJ colours
+    if(c.capsWhite>0) items.push(orderLine({label:`White caps (GJ Original + Nectarly)`,dotColor:HONEY.color,
+      count:ceil(c.capsWhite,CAPS_BAG),pack:CAPS_BAG,unit:'bag',need:c.capsWhite,needWord:'caps',fragLabel:`White caps`,removable:true}));
+    FLAVOURS.filter(f=>f.key!=='original').forEach(f=>{
+      const need=c.caps[f.key];
+      if(need>0) items.push(orderLine({label:`${f.cap} caps (${f.name})`,dotColor:f.color,count:ceil(need,CAPS_BAG),
+        pack:CAPS_BAG,unit:'bag',need,needWord:'caps',fragLabel:`${f.cap} caps`,removable:true}));
+    });
+    return {items:items.join('')};
+  });
+
+  /* ── BOX BROTHERS: combined boxes ── */
+  html+=supplierCard('box',()=>{
+    let items=[];
+    SIZES.forEach(s=>{
+      const need=c.boxes[s.key];
+      if(need>0) items.push(orderLine({label:`${s.name} boxes`,count:ceil(need,BOX_BAILER),
+        pack:BOX_BAILER,unit:'bailer',need,needWord:'boxes',fragLabel:`${s.name} boxes`}));
+    });
+    return {items:items.join('')};
+  });
+
+  /* ── MARICO + SUGAR: Nectarly fill (buckets) ── */
+  if(c.necBoxes>0){
+    const h=bucketsFor(c.necBoxes,BUCKET.honey.boxesPerBucket);
+    html+=supplierCard('marico',()=> ({items: orderLine({label:'Pure honey',count:h.order,unit:'bucket',
+      need:h.need,needWord:'buckets',fragLabel:'Pure honey',mode:'bucket'}) }));
+    const g=bucketsFor(c.necBoxes,BUCKET.glucose.boxesPerBucket);
+    html+=supplierCard('sugar',()=> ({items: orderLine({label:'Glucose',count:g.order,unit:'bucket',
+      need:g.need,needWord:'buckets',fragLabel:'Glucose',mode:'bucket'}) }));
+  }
+
+  /* ── JUTAGZ: labels (per brand, not combined) ── */
+  html+=supplierCard('jutagz',()=>{
+    let items=[], notes=[];
+    [['Gold Joy',c.gjUnits],['Nectarly',c.necUnits]].forEach(([brand,units])=>{
+      if(units<=0) return;
+      const q=Math.max(units,LABEL_MIN);
+      items.push(itemLine(`${brand} front labels`,null,`${q.toLocaleString()}`,`${units} needed${units<LABEL_MIN?' · min '+LABEL_MIN.toLocaleString():''}`,`• ${brand} front labels: ${q.toLocaleString()}`,false));
+      items.push(itemLine(`${brand} back labels`,null,`${q.toLocaleString()}`,`${units} needed${units<LABEL_MIN?' · min '+LABEL_MIN.toLocaleString():''}`,`• ${brand} back labels: ${q.toLocaleString()}`,false));
+      if(units<LABEL_MIN) notes.push(brand);
+    });
+    const note = notes.length?`<div class="note">${notes.join(' & ')} under the ${LABEL_MIN.toLocaleString()} bulk minimum — set to minimum. Labels usually ordered in bulk.</div>`:'';
+    return {items:items.join(''),extra:note};
+  });
+
+  html+=`</div>`; // close suppliers card wrapper
+
+  /* ── SYRUP (internal, no order) ── */
+  if(c.necBoxes>0){
+    const syr=bucketsFor(c.necBoxes,BUCKET.syrup.boxesPerBucket);
+    html+=`<div class="card"><h2><span class="num">i</span> Syrup (from bulk stock)</h2>
+      <div class="sub">Mixed into the honey — no supplier order needed.</div>
+      <div class="item-line"><span class="lbl">Syrup to mix in</span>
+        <span class="val"><b>${syr.need} bucket${syr.need===1?'':'s'}</b><small class="sub">${c.necBoxes} honey boxes · 1 bucket per 5 boxes</small></span></div></div>`;
+  }
+
+  html+=`<div class="actions">
+    <button class="btn btn-gold" onclick="saveOrder()">Save this order</button>
+    <button class="btn btn-ghost" onclick="clearAll()">Clear everything</button>
+  </div>`;
+
+  box.innerHTML=html;
+  document.querySelectorAll('#summaryResults .item-line.stepped').forEach(updateLine);
+  document.querySelectorAll('#summaryResults .supplier').forEach(rebuildWA);
+}
+function clearAll(){ clearBrand('goldjoy'); clearBrand('nectarly'); document.getElementById('custName').value=''; renderSummary(); }
+
+/* plain line (labels — no stepper) */
+function itemLine(label,dotColor,val,sub,waFrag,removable){
+  const dot = dotColor?`<span class="dot" style="background:${dotColor}"></span>`:'';
+  const wa = (waFrag||'').replace(/"/g,'&quot;');
+  const x = removable?`<button class="x-btn" onclick="toggleItem(this)" title="Have this in stock — remove from order">×</button>`:'';
+  return `<div class="item-line" data-wa="${wa}" data-included="1"><span class="lbl">${dot}${label}</span>
+    <span class="val"><b>${val}</b><small class="sub">${sub}</small></span>${x}</div>`;
+}
+
+/* stepped order line — editable bailer/bag/box count with − / + */
+function orderLine(o){
+  const dot = o.dotColor?`<span class="dot" style="background:${o.dotColor}"></span>`:'';
+  const x = o.removable?`<button class="x-btn" onclick="toggleItem(this)" title="Have this in stock — remove from order">×</button>`:'';
+  return `<div class="item-line stepped" data-included="1" data-mode="${o.mode||'pack'}"
+      data-count="${o.count}" data-pack="${o.pack||1}" data-unit="${o.unit}"
+      data-need="${o.need}" data-needword="${o.needWord}" data-fraglabel="${o.fragLabel.replace(/"/g,'&quot;')}">
+    <span class="lbl">${dot}${o.label}</span>
+    <span class="val">
+      <span class="stepper">
+        <button class="step" onclick="adjustLine(this,-1)" aria-label="less">−</button>
+        <span class="cnt-wrap"><b class="cnt"></b> <span class="unit"></span></span>
+        <button class="step" onclick="adjustLine(this,1)" aria-label="more">+</button>
+      </span>
+      <small class="sub"></small>
+    </span>${x}
+  </div>`;
+}
+function updateLine(line){
+  const c=+line.dataset.count, unit=line.dataset.unit;
+  const need=line.dataset.need, nw=line.dataset.needword, fl=line.dataset.fraglabel;
+  const uPl=c===1?unit:unit+'s';
+  line.querySelector('.cnt').textContent=c;
+  line.querySelector('.unit').textContent=uPl;
+  if(line.dataset.mode==='bucket'){
+    line.querySelector('.sub').textContent=`${need} ${nw} needed · whole buckets, min 1`;
+    line.dataset.wa=`• ${fl}: ${c} ${uPl}`;
+  } else {
+    const pack=+line.dataset.pack, supplied=c*pack;
+    line.querySelector('.sub').textContent=`${need} ${nw} needed · ${supplied} supplied (${pack}/${unit})`;
+    line.dataset.wa=`• ${fl}: ${c} ${uPl} (${supplied} ${nw})`;
+  }
+}
+function adjustLine(btn,d){
+  const line=btn.closest('.item-line');
+  line.dataset.count=Math.max(0,(+line.dataset.count)+d);
+  updateLine(line);
+  rebuildWA(line.closest('.supplier'));
+}
+
+const SUP_ICON={
+  ankot:'<svg class="sup-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4v2.5a3 3 0 0 0 .9 2.1l1.2 1.2A4 4 0 0 1 17.3 10v9a3 3 0 0 1-3 3H9.7a3 3 0 0 1-3-3v-9a4 4 0 0 1 1.2-2.2l1.2-1.2A3 3 0 0 0 10 4.5z"/><path d="M6.7 13h10.6"/></svg>',
+  box:'<svg class="sup-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>',
+  jutagz:'<svg class="sup-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 12.4 21.6a2 2 0 0 1-2.8 0l-6.2-6.2a2 2 0 0 1 0-2.8L11.6 4.4A2 2 0 0 1 13 3.8h5.2A1.8 1.8 0 0 1 20 5.6v5.2a2 2 0 0 1-.6 1.4Z"/><circle cx="15.5" cy="8.5" r="1.3"/></svg>'
+};
+function supplierCard(key,builder){
+  const s=SUPPLIERS[key];
+  const {items,extra}=builder();
+  if(!items) return '';
+  const custom=document.getElementById('custName').value;
+  const dateStr=document.getElementById('orderDate').value;
+  return `<div class="supplier">
+    <div class="sup-head">
+      <div><h3>${SUP_ICON[key]||''}${s.name}</h3><div class="contact">${s.supplies} · <b>${s.person}</b> · 0${s.phone.slice(2)}</div></div>
+    </div>
+    ${items}
+    ${extra||''}
+    <a class="wa-btn" href="#" target="_blank" rel="noopener"
+       data-phone="${s.phone}" data-person="${s.person}" data-custom="${custom.replace(/"/g,'&quot;')}" data-date="${dateStr}">
+      <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.8 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.2.1-1.9-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5s-1.1-1.5-1.1-2.9 .7-2 1-2.3c.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.6c-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.2.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l1.9.9c.3.1.4.2.5.3.1.2.1.6-.1 1.3z"/></svg>
+      <span class="wa-label">Send order to ${s.person} on WhatsApp</span>
+    </a>
+  </div>`;
+}
+
+/* ══════════ REMOVE / RESTORE ITEM (e.g. caps in stock) ══════════ */
+function toggleItem(btn){
+  const line=btn.closest('.item-line');
+  const inc=line.dataset.included==='1';
+  line.dataset.included=inc?'0':'1';
+  line.classList.toggle('excluded',inc);
+  btn.textContent=inc?'+':'×';
+  btn.title=inc?'Add back to order':'Have this in stock — remove from order';
+  rebuildWA(line.closest('.supplier'));
+}
+function rebuildWA(sup){
+  const btn=sup.querySelector('.wa-btn');
+  const frags=[...sup.querySelectorAll('.item-line')].filter(l=>l.dataset.included==='1').map(l=>l.dataset.wa);
+  const d=btn.dataset;
+  const label=sup.querySelector('.wa-label');
+  if(!frags.length){
+    btn.classList.add('disabled'); btn.removeAttribute('href');
+    label.textContent='Nothing to order — all in stock';
+    return;
+  }
+  btn.classList.remove('disabled');
+  const text=`Hi ${d.person}, King Brands raw material order${d.custom?' ('+d.custom+')':''} — ${d.date}\n\n`+frags.join('\n')+`\n\nThanks, King Brands`;
+  btn.href=`https://wa.me/${d.phone}?text=`+encodeURIComponent(text);
+  label.textContent=`Send order to ${d.person} on WhatsApp`;
+}
+
+/* ══════════ HISTORY ══════════ */
+function saveOrder(){
+  const gj=readGoldJoy(), nec=readNectarly();
+  if(!gj.length && !nec.length){ alert('Nothing selected to save.'); return; }
+  const orders=getOrders();
+  orders.unshift({
+    id:Date.now(),
+    cust:document.getElementById('custName').value||'(no name)',
+    date:document.getElementById('orderDate').value,
+    gj:gj.map(l=>({f:l.flavour.key,s:l.size.key,b:l.boxes})),
+    nec:nec.map(l=>({s:l.size.key,b:l.boxes})),
+    totalBoxes:gj.reduce((a,l)=>a+l.boxes,0)+nec.reduce((a,l)=>a+l.boxes,0)
+  });
+  localStorage.setItem('kb_orders',JSON.stringify(orders));
+  alert('Order saved.');
+}
+function getOrders(){ try{return JSON.parse(localStorage.getItem('kb_orders'))||[]}catch(e){return[]} }
+function renderHistory(){
+  const list=document.getElementById('histList');
+  const orders=getOrders();
+  if(!orders.length){ list.innerHTML='<div class="empty">No saved orders yet.</div>'; return; }
+  list.innerHTML=orders.map(o=>{
+    const g=(o.gj||[]).reduce((a,l)=>a+l.b,0), n=(o.nec||[]).reduce((a,l)=>a+l.b,0);
+    return `<div class="hist-item">
+      <div class="h-main"><b>${o.cust}</b><small>${o.date} · ${o.totalBoxes} boxes (${g} GJ · ${n} Nec)</small></div>
+      <div class="h-act">
+        <button onclick="loadOrder(${o.id})">Load</button>
+        <button class="del" onclick="delOrder(${o.id})">Delete</button>
+      </div>
+    </div>`;}).join('');
+}
+function loadOrder(id){
+  const o=getOrders().find(x=>x.id===id); if(!o) return;
+  clearBrand('goldjoy'); clearBrand('nectarly');
+  document.getElementById('custName').value=o.cust==='(no name)'?'':o.cust;
+  (o.gj||[]).forEach(l=>setQty(l.f+'_'+l.s,l.b));
+  (o.nec||[]).forEach(l=>setQty('honey_'+l.s,l.b));
+  openBrand('summary');
+}
+function delOrder(id){
+  if(!confirm('Delete this saved order?')) return;
+  localStorage.setItem('kb_orders',JSON.stringify(getOrders().filter(x=>x.id!==id)));
+  renderHistory();
+}
+function delOrder(id){
+  if(!confirm('Delete this saved order?')) return;
+  localStorage.setItem('kb_orders',JSON.stringify(getOrders().filter(x=>x.id!==id)));
+  renderHistory();
+}
+</script>
+</body>
+</html>
