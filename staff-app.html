@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --navy-950:#050b1c; --navy-900:#0a1330; --navy-850:#0d1839; --navy-800:#122048;
@@ -512,6 +513,11 @@ const OWNER_USER = 'grootbaas';
 const OWNER_PASS = 'king2024';
 const STAFF_PASS = 'ginger2026';
 
+/* Supabase — shared cloud DB (all devices sync) */
+const SB_URL = 'https://llsmsvhqnliarxrihtzk.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxsc21zdmhxbmxpYXJ4cmlodHprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MDgyODgsImV4cCI6MjA5OTE4NDI4OH0.dUxatg8z6q2mouaBjQ5xoUsX9SzMSiArOJOmH-9B0sI';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
 // Andru's WhatsApp (065 894 2768 → intl, no +/spaces)
 const ANDRU_WA   = '27658942768';
 const OWNER_EMAIL = 'pw@kingbrandsgroup.co.za';
@@ -724,13 +730,19 @@ function sheetToText(s){
   return t;
 }
 
-function submitStock(){
+async function submitStock(){
   const s = collectSheet();
-  // save (keep last 7)
-  let all = JSON.parse(localStorage.getItem(STORE_KEY)||'[]');
-  all.unshift(s);
-  all = all.slice(0,KEEP);
-  localStorage.setItem(STORE_KEY, JSON.stringify(all));
+  // save to Supabase (shared across all devices)
+  try{
+    const {error} = await sb.from('stock_sheets').insert({
+      id:s.id, submitter:s.submitter, date_str:s.dateStr, time_str:s.timeStr, data:s
+    });
+    if(error) throw error;
+  }catch(e){
+    // offline fallback → keep locally so nothing is lost
+    let all = JSON.parse(localStorage.getItem(STORE_KEY)||'[]');
+    all.unshift(s); localStorage.setItem(STORE_KEY, JSON.stringify(all.slice(0,KEEP)));
+  }
 
   const text = sheetToText(s);
   // WhatsApp link to Andru
@@ -757,9 +769,17 @@ function submitStock(){
 }
 
 /* ═══════════ OWNER: RENDER SHEETS ═══════════ */
-function renderSheets(){
-  const all = JSON.parse(localStorage.getItem(STORE_KEY)||'[]');
+async function renderSheets(){
   const list = document.getElementById('sheetList');
+  list.innerHTML='<div class="empty-note">Loading…</div>';
+  let all=[];
+  try{
+    const {data,error} = await sb.from('stock_sheets').select('*').order('id',{ascending:false}).limit(KEEP);
+    if(error) throw error;
+    all = (data||[]).map(r=>r.data);
+  }catch(e){
+    all = JSON.parse(localStorage.getItem(STORE_KEY)||'[]'); // offline fallback
+  }
   if(!all.length){ list.innerHTML='<div class="empty-note">No stock sheets submitted yet.</div>'; return; }
   list.innerHTML = all.map((s,i)=>{
     const disp=s.submitter.charAt(0).toUpperCase()+s.submitter.slice(1);
@@ -836,27 +856,36 @@ function netHours(inISO,outISO){
 function roundHrs(h){ return Math.round(h*100)/100; }
 function payOf(hrs){ return Math.round(hrs*RATE); } // nearest rand
 
-function loadTimes(){ return JSON.parse(localStorage.getItem(TIME_KEY)||'[]'); }
-function saveTimes(a){ localStorage.setItem(TIME_KEY, JSON.stringify(a)); }
-function pruneTimes(a){
-  // keep current week + KEEP_WEEKS past weeks
-  const cutoff = mondayOf(new Date()); cutoff.setDate(cutoff.getDate()-7*KEEP_WEEKS);
-  return a.filter(e=> new Date(e.date+'T00:00') >= cutoff);
+// tsCache = timesheet rows currently loaded from Supabase (normalized)
+let tsCache = [];
+function rowToEntry(r){ return {name:r.name, date:r.work_date, in:r.clock_in, out:r.clock_out, net:Number(r.net_hours)||0}; }
+async function fetchTimes(names, startYmd, endYmd){
+  try{
+    const {data,error} = await sb.from('timesheets').select('*')
+      .in('name',names).gte('work_date',startYmd).lte('work_date',endYmd).order('work_date');
+    if(error) throw error;
+    return (data||[]).map(rowToEntry);
+  }catch(e){ return null; }
 }
-function todaysEntry(name){
-  const t = ymd(new Date());
-  return loadTimes().find(e=>e.name===name && e.date===t) || null;
-}
+function sundayYmd(mondayStr){ const m=new Date(mondayStr+'T00:00'); m.setDate(m.getDate()+6); return ymd(m); }
+function todaysEntry(name){ const t=ymd(new Date()); return tsCache.find(e=>e.name===name && e.date===t)||null; }
 
 /* ── staff clock ── */
-function openTimesheet(){
+async function openTimesheet(){
   document.getElementById('timeToday').textContent =
     new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   show('staffTime');
   tickClock();
   clockTimer = setInterval(tickClock, 1000*20);
-  renderClockState();
-  renderMyWeek();
+  document.getElementById('clockState').textContent='Loading…';
+  document.getElementById('clockBtns').innerHTML='';
+  await reloadStaffWeek();
+}
+async function reloadStaffWeek(){
+  const mon=weekKey(new Date());
+  const r=await fetchTimes([session.user], mon, sundayYmd(mon));
+  tsCache = r||[];
+  renderClockState(); renderMyWeek();
 }
 function tickClock(){
   const el=document.getElementById('clockNow');
@@ -877,27 +906,34 @@ function renderClockState(){
     btns.innerHTML='<span class="clock-state">See you tomorrow 👋</span>';
   }
 }
-function clockIn(){
+async function clockIn(){
   if(todaysEntry(session.user)) return;
   const now=new Date();
-  const all=loadTimes();
-  all.push({name:session.user, date:ymd(now), in:now.toISOString(), out:null, net:0});
-  saveTimes(pruneTimes(all));
-  renderClockState(); renderMyWeek();
+  const btns=document.getElementById('clockBtns'); btns.innerHTML='<span class="clock-state">Saving…</span>';
+  try{
+    const {error}=await sb.from('timesheets').insert({id:Date.now(), name:session.user, work_date:ymd(now),
+      clock_in:now.toISOString(), clock_out:null, net_hours:0});
+    if(error) throw error;
+  }catch(e){ alert('Could not clock in — check your internet and try again.'); }
+  await reloadStaffWeek();
 }
-function clockOut(){
+async function clockOut(){
   const t=ymd(new Date());
-  const all=loadTimes();
-  const e=all.find(x=>x.name===session.user && x.date===t);
-  if(!e || e.out) return;
-  e.out=new Date().toISOString();
-  e.net=netHours(e.in,e.out);
-  saveTimes(pruneTimes(all));
-  renderClockState(); renderMyWeek();
+  const e=tsCache.find(x=>x.name===session.user && x.date===t && !x.out);
+  if(!e) return;
+  const outISO=new Date().toISOString();
+  const net=netHours(e.in,outISO);
+  const btns=document.getElementById('clockBtns'); btns.innerHTML='<span class="clock-state">Saving…</span>';
+  try{
+    const {error}=await sb.from('timesheets').update({clock_out:outISO, net_hours:net})
+      .eq('name',session.user).eq('work_date',t).is('clock_out',null);
+    if(error) throw error;
+  }catch(e2){ alert('Could not clock out — check your internet and try again.'); }
+  await reloadStaffWeek();
 }
 function weekEntries(name, mondayStr){
-  return loadTimes().filter(e=>e.name===name && weekKey(new Date(e.date+'T00:00'))===mondayStr)
-                    .sort((a,b)=>a.date<b.date?-1:1);
+  return tsCache.filter(e=>e.name===name && weekKey(new Date(e.date+'T00:00'))===mondayStr)
+                .sort((a,b)=>a.date<b.date?-1:1);
 }
 function renderMyWeek(){
   const monStr = weekKey(new Date());
@@ -961,7 +997,17 @@ function pastWeekKeys(){
   for(let i=1;i<=KEEP_WEEKS;i++){ const d=new Date(cur); d.setDate(d.getDate()-7*i); keys.push(ymd(d)); }
   return keys;
 }
-function renderOwnerTime(){
+async function renderOwnerTime(){
+  const cur=mondayOf(new Date());
+  const start=new Date(cur); start.setDate(start.getDate()-7*KEEP_WEEKS);
+  const end=new Date(cur);   end.setDate(end.getDate()+6);
+  document.getElementById('ownerWeekNow').innerHTML='<div class="empty-note">Loading…</div>';
+  document.getElementById('ownerWeekHist').innerHTML='';
+  const r=await fetchTimes(STAFF, ymd(start), ymd(end));
+  tsCache = r||[];
+  renderOwnerTimeUI();
+}
+function renderOwnerTimeUI(){
   const monStr = weekKey(new Date());
   document.getElementById('ownerTimeWeek').textContent = 'This week · '+weekRangeLabel(monStr);
   // current week per employee
